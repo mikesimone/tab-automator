@@ -311,9 +311,6 @@ export async function _setStorage(tabModifier: TabModifierSettings): Promise<voi
 
 		debugLog(`[Tabee] Data saved successfully to local storage`);
 
-		// Clean up any old sync storage data (migration cleanup)
-		await _clearSyncStorage();
-
 		const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
 		debugLog(
 			`[Tabee] Storage complete: ${originalSize} → ${compressedSize} bytes (${ratio}% reduction)`
