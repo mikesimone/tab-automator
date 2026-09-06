@@ -146,6 +146,13 @@ export const useRulesStore = defineStore('rules', {
 			if (settings.debug_mode === undefined) {
 				settings.debug_mode = false;
 			}
+			// Add default values for auto-backup / cross-device sync if they don't exist
+			if (settings.auto_backup_enabled === undefined) {
+				settings.auto_backup_enabled = false;
+			}
+			if (settings.sync_enabled === undefined) {
+				settings.sync_enabled = false;
+			}
 			return settings;
 		},
 		async init() {

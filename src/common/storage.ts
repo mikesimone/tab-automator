@@ -3,6 +3,8 @@ import { _clone, _generateRandomId } from './helpers.ts';
 import { _safeRegexTestSync } from './regex-safety.ts';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { debugLog } from './debugLog.ts';
+import { _autoBackupConfig } from './autoBackup.ts';
+import { _pushToSync } from './syncStorage.ts';
 
 export const STORAGE_KEY = 'tab_modifier';
 export const STORAGE_KEY_COMPRESSED = 'tab_modifier_compressed';
@@ -27,6 +29,8 @@ export function _getDefaultTabModifierSettings(): TabModifierSettings {
 			auto_close_timeout: 30, // 30 minutes par défaut
 			tab_hive_reject_list: [],
 			debug_mode: false,
+			auto_backup_enabled: false,
+			sync_enabled: false,
 		},
 	};
 }
@@ -64,7 +68,7 @@ export function _getDefaultGroup(title?: string): Group {
 /**
  * Decompress data from storage
  */
-function _decompressData(compressed: string): TabModifierSettings | null {
+export function _decompressData(compressed: string): TabModifierSettings | null {
 	try {
 		const decompressed = decompressFromUTF16(compressed);
 		if (!decompressed) {
@@ -80,7 +84,7 @@ function _decompressData(compressed: string): TabModifierSettings | null {
 /**
  * Compress data for storage
  */
-function _compressData(data: TabModifierSettings): string {
+export function _compressData(data: TabModifierSettings): string {
 	const json = JSON.stringify(data);
 	return compressToUTF16(json);
 }
@@ -125,7 +129,7 @@ function _getAllSyncStorageKeys(): Promise<Record<string, any>> {
 /**
  * Helper function to load data from a specific storage (local or sync)
  */
-async function _loadFromStorage(
+export async function _loadFromStorage(
 	storage: chrome.storage.StorageArea,
 	storageName: string
 ): Promise<TabModifierSettings | null> {
@@ -318,6 +322,12 @@ export async function _setStorage(tabModifier: TabModifierSettings): Promise<voi
 		console.error('[Tabee] Failed to save data:', error);
 		throw error;
 	}
+
+	// Best-effort side effects of a successful local save. Neither of these
+	// should ever cause the actual config save to fail, so each is isolated
+	// and swallows its own errors internally.
+	await _autoBackupConfig(tabModifier);
+	await _pushToSync(tabModifier);
 }
 
 export async function _getRuleFromUrl(url: string): Promise<Rule | undefined> {

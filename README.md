@@ -16,8 +16,27 @@ Take control of your tabs!
 * Prevent tab closing
 * Unique tab
 * Mute tab
+* Auto-backup your configuration to Downloads on every change
+* Sync your configuration across devices via your browser account
 
 Quick rename can be done by right-clicking anywhere in the page and click on "Rename Tab".
+
+### Backup & Sync
+
+In Options > Settings:
+
+* **Auto-Backup on Every Change** - writes a copy of your full configuration to
+  `Downloads/tabee.auto-backup.json` every time you add, edit, or remove
+  something, so a browser reset or a bad import never costs you your rules.
+  The file is overwritten in place (no growing pile of numbered copies).
+* **Sync Across Devices** - mirrors your configuration through your browser's
+  built-in account sync (`chrome.storage.sync`), so it shows up automatically
+  on your other devices signed into the same account. Very large
+  configurations (lots of custom icons) may exceed the browser's sync quota;
+  Tabee detects that and falls back to local + Downloads backup only, rather
+  than failing silently.
+
+Both are off by default and can be toggled independently.
 
 ## Installation
 

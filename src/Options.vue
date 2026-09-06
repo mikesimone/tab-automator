@@ -292,11 +292,34 @@ onMounted(async () => {
 
 	// Add keyboard shortcut listener
 	document.addEventListener('keydown', handleKeydown);
+
+	chrome.runtime.onMessage.addListener(handleSyncConfigUpdated);
 });
 
 onUnmounted(() => {
 	document.removeEventListener('keydown', handleKeydown);
+	chrome.runtime.onMessage.removeListener(handleSyncConfigUpdated);
 });
+
+/**
+ * Fired by the background script when it pulls a newer config from
+ * chrome.storage.sync (i.e. another device made a change). Reload the
+ * store so this open Options page doesn't keep showing stale data.
+ */
+function handleSyncConfigUpdated(message: any) {
+	if (message?.action !== 'syncConfigUpdated') {
+		return;
+	}
+
+	void (async () => {
+		await rulesStore.init();
+
+		emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
+			type: 'info',
+			message: 'Configuration updated from another device.',
+		});
+	})();
+}
 </script>
 
 <style scoped>
