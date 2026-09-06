@@ -52,7 +52,8 @@
     "scripting",
     "sidePanel",
     "bookmarks",
-    "alarms"
+    "alarms",
+    "downloads"
   ],
   "host_permissions": [
     "http://*/*",

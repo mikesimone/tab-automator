@@ -63,6 +63,9 @@ export type Settings = {
 	auto_close_timeout: number; // en minutes
 	tab_hive_reject_list: string[]; // List of domains to exclude from auto-close
 	debug_mode: boolean; // Enable/disable console logs in content script
+	auto_backup_enabled: boolean; // Auto-export a config copy to Downloads on every change
+	sync_enabled: boolean; // Mirror config through chrome.storage.sync for cross-device sync
+	last_synced_at?: number; // Timestamp (ms) of the last successful sync push/pull
 };
 
 export type TabModifierSettings = {

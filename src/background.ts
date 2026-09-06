@@ -2,7 +2,13 @@
  * Main background service worker
  * Orchestrates all services following Dependency Inversion Principle
  */
-import { _getRuleFromUrl, _getStorageAsync, _setStorage } from './common/storage';
+import {
+	_getRuleFromUrl,
+	_getStorageAsync,
+	_setStorage,
+	STORAGE_KEY_METADATA,
+} from './common/storage';
+import { _pullFromSyncIfNewer } from './common/syncStorage';
 import { TabRulesService } from './background/TabRulesService';
 import { TabGroupsService } from './background/TabGroupsService';
 import { TabHiveService } from './background/TabHiveService';
@@ -365,6 +371,32 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 				// No need to restart, the next check will use the new timeout
 			}
 		}
+	}
+
+	// A change to sync storage's chunk metadata means another device pushed
+	// a config update. Pull it down and apply it locally, but only if this
+	// device also has sync turned on - a remote push shouldn't silently
+	// override a device that opted out.
+	if (areaName === 'sync' && changes[STORAGE_KEY_METADATA]) {
+		void (async () => {
+			const local = await _getStorageAsync();
+
+			if (!local?.settings?.sync_enabled) {
+				return;
+			}
+
+			const result = await _pullFromSyncIfNewer();
+
+			if (result.status === 'updated') {
+				await _setStorage(result.data);
+
+				console.log('[Tabee] 🔄 Applied config pulled from sync (another device made a change)');
+
+				// Best-effort: let an open Options/Popup page know to refresh.
+				// No listener being present (nothing open) is expected and fine.
+				chrome.runtime.sendMessage({ action: 'syncConfigUpdated' }).catch(() => {});
+			}
+		})();
 	}
 });
 
