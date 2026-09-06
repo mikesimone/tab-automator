@@ -51,21 +51,23 @@ function makeStorageArea(store: Record<string, any>) {
 
 let localStore: Record<string, any>;
 let syncStore: Record<string, any>;
+let syncArea: ReturnType<typeof makeStorageArea> & { QUOTA_BYTES: number; MAX_ITEMS: number };
 
 describe('syncStorage', () => {
 	beforeEach(() => {
 		localStore = {};
 		syncStore = {};
+		syncArea = Object.assign(makeStorageArea(syncStore), {
+			QUOTA_BYTES: 102400,
+			MAX_ITEMS: 512,
+		});
 
-		// @ts-ignore - global is from vitest setup
+		// @ts-expect-error - global is from vitest setup; see storage.test.ts for the same pattern
 		global.chrome = {
 			runtime: { lastError: null },
 			storage: {
 				local: makeStorageArea(localStore),
-				sync: Object.assign(makeStorageArea(syncStore), {
-					QUOTA_BYTES: 102400,
-					MAX_ITEMS: 512,
-				}),
+				sync: syncArea,
 			},
 		};
 	});
@@ -112,13 +114,12 @@ describe('syncStorage', () => {
 			const config = makeConfig();
 
 			await _pushToSync(config);
-			const setCallsAfterFirst = (syncStore && (global as any).chrome.storage.sync.set.mock.calls.length);
+			const setCallsAfterFirst = syncArea.set.mock.calls.length;
 
 			const result = await _pushToSync(config);
 
 			expect(result).toBe('unchanged');
-			// @ts-ignore
-			expect(global.chrome.storage.sync.set.mock.calls.length).toBe(setCallsAfterFirst);
+			expect(syncArea.set.mock.calls.length).toBe(setCallsAfterFirst);
 		});
 
 		it('cleans up stale chunk keys when a new push has fewer chunks than the last', async () => {
@@ -155,8 +156,7 @@ describe('syncStorage', () => {
 		});
 
 		it('returns "too-large" and writes nothing when the config exceeds the sync quota', async () => {
-			// @ts-ignore
-			global.chrome.storage.sync.QUOTA_BYTES = 100; // tiny quota, easy to exceed
+			syncArea.QUOTA_BYTES = 100; // tiny quota, easy to exceed
 
 			const result = await _pushToSync(makeConfig());
 

@@ -25,7 +25,7 @@ function makeConfig(autoBackupEnabled: boolean): TabModifierSettings {
 
 describe('autoBackup', () => {
 	beforeEach(() => {
-		// @ts-ignore - global is from vitest setup
+		// @ts-expect-error - global is from vitest setup
 		global.chrome = {
 			downloads: {
 				download: vi.fn((_options: any, callback?: (id: number) => void) => {
@@ -39,12 +39,12 @@ describe('autoBackup', () => {
 	it('does nothing when auto-backup is disabled', async () => {
 		await _autoBackupConfig(makeConfig(false));
 
-		// @ts-ignore
+		// @ts-expect-error - global is untyped in this project (no @types/node)
 		expect(global.chrome.downloads.download).not.toHaveBeenCalled();
 	});
 
 	it('does nothing when chrome.downloads is unavailable', async () => {
-		// @ts-ignore
+		// @ts-expect-error - global is untyped in this project (no @types/node)
 		global.chrome = {};
 
 		await expect(_autoBackupConfig(makeConfig(true))).resolves.not.toThrow();
@@ -53,9 +53,9 @@ describe('autoBackup', () => {
 	it('downloads a JSON backup with a fixed, overwritable filename', async () => {
 		await _autoBackupConfig(makeConfig(true));
 
-		// @ts-ignore
+		// @ts-expect-error - global is untyped in this project (no @types/node)
 		expect(global.chrome.downloads.download).toHaveBeenCalledTimes(1);
-		// @ts-ignore
+		// @ts-expect-error - global is untyped in this project (no @types/node)
 		const [options] = global.chrome.downloads.download.mock.calls[0];
 
 		expect(options.filename).toBe(AUTO_BACKUP_FILENAME);
@@ -64,12 +64,13 @@ describe('autoBackup', () => {
 		expect(options.url).toMatch(/^data:application\/json;base64,/);
 
 		const base64 = options.url.split(',')[1];
-		const decoded = JSON.parse(Buffer.from(base64, 'base64').toString('utf-8'));
+		const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+		const decoded = JSON.parse(new TextDecoder().decode(bytes));
 		expect(decoded.settings.auto_backup_enabled).toBe(true);
 	});
 
 	it('swallows errors from the downloads API instead of throwing', async () => {
-		// @ts-ignore
+		// @ts-expect-error - global is untyped in this project (no @types/node)
 		global.chrome.downloads.download = vi.fn(() => {
 			throw new Error('boom');
 		});
