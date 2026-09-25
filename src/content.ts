@@ -32,13 +32,13 @@ const storageService = new StorageService(regexService);
 const ruleApplicationService = new RuleApplicationService(titleService, iconService);
 
 // Spot Search UI
-debugLog('[Tabee Content] 🔍 Initializing Spot Search UI...');
+debugLog('[Tab Automator Content] 🔍 Initializing Spot Search UI...');
 const spotSearchUI = new SpotSearchUI();
 try {
 	spotSearchUI.init();
-	debugLog('[Tabee Content] ✅ Spot Search UI initialized');
+	debugLog('[Tab Automator Content] ✅ Spot Search UI initialized');
 } catch (error) {
-	console.error('[Tabee Content] ❌ Failed to initialize Spot Search UI:', error);
+	console.error('[Tab Automator Content] ❌ Failed to initialize Spot Search UI:', error);
 }
 
 // ============================================================
@@ -53,11 +53,11 @@ async function applyRulesForUrl(url: string): Promise<void> {
 	try {
 		const rule = await storageService.getRuleFromUrl(url);
 		if (rule) {
-			debugLog('[Tabee Content] 📋 Applying rule for URL:', url);
+			debugLog('[Tab Automator Content] 📋 Applying rule for URL:', url);
 			await ruleApplicationService.applyRule(rule);
 		}
 	} catch (error) {
-		console.error('[Tabee Content] Error applying rule:', error);
+		console.error('[Tab Automator Content] Error applying rule:', error);
 	}
 }
 
@@ -71,7 +71,7 @@ applyRulesForUrl(location.href);
 // Setup URL change detector for Single Page Applications
 const urlChangeDetector = new UrlChangeDetector();
 urlChangeDetector.onChange(async (newUrl, _oldUrl) => {
-	debugLog('[Tabee Content] 🔄 SPA navigation detected, re-applying rules');
+	debugLog('[Tab Automator Content] 🔄 SPA navigation detected, re-applying rules');
 	await applyRulesForUrl(newUrl);
 });
 urlChangeDetector.start();
@@ -98,13 +98,13 @@ chrome.runtime.onMessage.addListener(async function (request) {
 	} else if (request.action === 'ungroupTab') {
 		await chrome.tabs.ungroup(request.tabId);
 	} else if (request.action === 'toggleSpotSearch') {
-		debugLog('[Tabee Content] 🔍 Toggling spot search UI...');
+		debugLog('[Tab Automator Content] 🔍 Toggling spot search UI...');
 		// Toggle spot search UI
 		spotSearchUI.toggle();
-		debugLog('[Tabee Content] ✅ Spot search toggled');
+		debugLog('[Tab Automator Content] ✅ Spot search toggled');
 	} else if (request.action === 'spotSearchResults') {
 		debugLog(
-			'[Tabee Content] 🔍 Displaying search results:',
+			'[Tab Automator Content] 🔍 Displaying search results:',
 			request.tabs.length,
 			'tabs,',
 			request.bookmarks.length,

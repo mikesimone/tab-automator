@@ -2,10 +2,10 @@
 	<div class="container mx-auto max-w-5xl p-4">
 		<div class="card bg-base-200 mb-4">
 			<div class="card-body">
-				<h2 class="card-title">Donation</h2>
+				<h2 class="card-title">Support the original author</h2>
 				<p>
-					If you like this extension and want to support its development, you can make a donation by
-					clicking one of the buttons below.
+					Tab Automator is a community fork of Tabee, built by FuryBee. If you like this extension,
+					you can support the original author by clicking one of the buttons below.
 				</p>
 			</div>
 		</div>

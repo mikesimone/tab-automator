@@ -47,14 +47,14 @@ chrome.tabs.onUpdated.addListener(
 			} else {
 				// Tab entered split view
 				tabGroupsService.markTabInSplitView(tabId);
-				console.log('[Tabee] Skipping tab update - split view change detected:', tabId);
+				console.log('[Tab Automator] Skipping tab update - split view change detected:', tabId);
 				return;
 			}
 		}
 
 		// Also check the tab object for split view status
 		if (tabGroupsService.isTabInSplitView(tab)) {
-			console.log('[Tabee] Skipping tab update - tab is in split view:', tabId);
+			console.log('[Tab Automator] Skipping tab update - tab is in split view:', tabId);
 			return;
 		}
 
@@ -87,7 +87,7 @@ chrome.tabs.onUpdated.addListener(
 				await tabGroupsService.ungroupTab(rule, tab);
 			}
 		} catch (error) {
-			console.log('[Tabee] Error applying group rule (tab may be in split view):', error);
+			console.log('[Tab Automator] Error applying group rule (tab may be in split view):', error);
 		}
 
 		// Handle unique tab logic in background for faster duplicate closing
@@ -122,7 +122,7 @@ chrome.tabs.onMoved.addListener(async (tabId) => {
 
 	// Skip if tab is in split view (Chrome 140+)
 	if (tabGroupsService.isTabInSplitView(tab)) {
-		console.log('[Tabee] Skipping tab move - tab is in split view:', tabId);
+		console.log('[Tab Automator] Skipping tab move - tab is in split view:', tabId);
 		return;
 	}
 
@@ -140,7 +140,10 @@ chrome.tabs.onMoved.addListener(async (tabId) => {
 	try {
 		await tabGroupsService.applyGroupRuleToTab(rule, tab, tabModifier);
 	} catch (error) {
-		console.log('[Tabee] Error applying group rule on move (tab may be in split view):', error);
+		console.log(
+			'[Tab Automator] Error applying group rule on move (tab may be in split view):',
+			error
+		);
 	}
 });
 
@@ -303,12 +306,12 @@ async function addToTabHiveRejectList(url: string, type: 'domain' | 'url'): Prom
 		if (!tabModifier.settings.tab_hive_reject_list.includes(pattern)) {
 			tabModifier.settings.tab_hive_reject_list.push(pattern);
 			await _setStorage(tabModifier);
-			console.log(`[Tabee] 🚫 Added to Tab Hive reject list (${type}): ${pattern}`);
+			console.log(`[Tab Automator] 🚫 Added to Tab Hive reject list (${type}): ${pattern}`);
 		} else {
-			console.log(`[Tabee] Pattern already in reject list: ${pattern}`);
+			console.log(`[Tab Automator] Pattern already in reject list: ${pattern}`);
 		}
 	} catch (error) {
-		console.error('[Tabee] Error adding to reject list:', error);
+		console.error('[Tab Automator] Error adding to reject list:', error);
 	}
 }
 
@@ -356,7 +359,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 			// If auto-close was just enabled
 			if (!wasEnabled && isEnabled) {
-				console.log('[Tabee] 🍯 Auto-close enabled via settings, initializing tracking...');
+				console.log('[Tab Automator] 🍯 Auto-close enabled via settings, initializing tracking...');
 				tabHiveService.initialize();
 			}
 			// If auto-close was just disabled
@@ -366,7 +369,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 			// If timeout changed while enabled
 			else if (isEnabled && oldTimeout !== newTimeout) {
 				console.log(
-					`[Tabee] 🍯 Auto-close timeout changed from ${oldTimeout} to ${newTimeout} minutes`
+					`[Tab Automator] 🍯 Auto-close timeout changed from ${oldTimeout} to ${newTimeout} minutes`
 				);
 				// No need to restart, the next check will use the new timeout
 			}
@@ -390,7 +393,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 			if (result.status === 'updated') {
 				await _setStorage(result.data);
 
-				console.log('[Tabee] 🔄 Applied config pulled from sync (another device made a change)');
+				console.log(
+					'[Tab Automator] 🔄 Applied config pulled from sync (another device made a change)'
+				);
 
 				// Best-effort: let an open Options/Popup page know to refresh.
 				// No listener being present (nothing open) is expected and fine.
@@ -405,32 +410,32 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 // =============================================================================
 
 chrome.commands.onCommand.addListener(async (command, tab) => {
-	console.log('[Tabee] 🔍 Command received:', command);
+	console.log('[Tab Automator] 🔍 Command received:', command);
 
 	if (command === 'merge-windows') {
 		await windowService.mergeAllWindows();
 	} else if (command === 'spot-search') {
-		console.log('[Tabee] 🔍 Spot search command triggered');
-		console.log('[Tabee] 🔍 Tab:', tab);
+		console.log('[Tab Automator] 🔍 Spot search command triggered');
+		console.log('[Tab Automator] 🔍 Tab:', tab);
 
 		// Toggle spot search in the active tab
 		if (!tab?.id) {
-			console.log('[Tabee] ❌ No tab ID found');
+			console.log('[Tab Automator] ❌ No tab ID found');
 			return;
 		}
 
 		// Skip chrome:// and about: pages
 		if (tab.url && (tab.url.startsWith('chrome://') || tab.url.startsWith('about:'))) {
-			console.log('[Tabee] ❌ Cannot open spot search on chrome:// or about: pages');
+			console.log('[Tab Automator] ❌ Cannot open spot search on chrome:// or about: pages');
 			return;
 		}
 
-		console.log('[Tabee] 🔍 Sending toggleSpotSearch message to tab', tab.id);
+		console.log('[Tab Automator] 🔍 Sending toggleSpotSearch message to tab', tab.id);
 		try {
 			await chrome.tabs.sendMessage(tab.id, { action: 'toggleSpotSearch' });
-			console.log('[Tabee] ✅ Message sent successfully');
+			console.log('[Tab Automator] ✅ Message sent successfully');
 		} catch (error) {
-			console.error('[Tabee] ❌ Error toggling spot search:', error);
+			console.error('[Tab Automator] ❌ Error toggling spot search:', error);
 		}
 	}
 });
@@ -462,7 +467,7 @@ chrome.action.onClicked.addListener(async (tab) => {
  */
 chrome.alarms.onAlarm.addListener(async (alarm) => {
 	if (alarm.name === 'tabee-auto-close-checker') {
-		console.log('[Tabee] 🍯 Alarm triggered, checking for inactive tabs...');
+		console.log('[Tab Automator] 🍯 Alarm triggered, checking for inactive tabs...');
 		await tabHiveService.checkAndCloseInactiveTabs();
 	}
 });
@@ -475,8 +480,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 tabHiveService.initialize();
 
 // Log that background script is loaded
-console.log('[Tabee] 🐝 Background service worker loaded and ready');
-console.log('[Tabee] 🔍 Spot search command handler registered');
+console.log('[Tab Automator] 🐝 Background service worker loaded and ready');
+console.log('[Tab Automator] 🔍 Spot search command handler registered');
 
 // Export for use in other modules
 export { tabHiveService };

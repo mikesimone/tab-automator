@@ -1,11 +1,16 @@
-# <img src="public/assets/icon_16.png" alt="icon"> Tabee
+# <img src="public/assets/icon_16.png" alt="icon"> Tab Automator
 
-![GitHub Release](https://img.shields.io/github/v/release/furybee/chrome-tab-modifier?style=flat-square&labelColor=black&v) [![license](https://img.shields.io/badge/license-MIT-ff4081.svg?style=flat-square&labelColor=black)](./LICENSE) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/furybee/chrome-tab-modifier/ci.yml?style=flat-square&label=CI&labelColor=black) [![.nvmrc](https://img.shields.io/badge/.nvmrc-20-00e676.svg?style=flat-square&labelColor=black)](./.nvmrc)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-ffab00.svg?style=flat-square&labelColor=black)](https://conventionalcommits.org) ![pr welcome](https://img.shields.io/badge/PRs-welcome-09FF33.svg?style=flat-square&labelColor=black)
+[![license](https://img.shields.io/badge/license-MIT-ff4081.svg?style=flat-square&labelColor=black)](./LICENSE.md)
 
-The original Tab Modifier.
+Automate your browser tabs with rules.
 
-Take control of your tabs!
+> **Tab Automator is a community fork of [Tabee](https://github.com/furybee/chrome-tab-modifier)
+> (formerly Tab Modifier) by [FuryBee](https://github.com/furybee).** Nearly all of this extension
+> is FuryBee's work, used under the MIT license. The fork exists to ship features that are waiting
+> on upstream review, starting with auto-backup and cross-device sync
+> ([furybee/chrome-tab-modifier#555](https://github.com/furybee/chrome-tab-modifier/pull/555)).
+> It is not affiliated with or endorsed by FuryBee. If you'd rather use the original, install
+> [Tabee from the Chrome Web Store](https://chromewebstore.google.com/detail/tabee-tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia).
 
 ## Features
 
@@ -26,35 +31,26 @@ Quick rename can be done by right-clicking anywhere in the page and click on "Re
 In Options > Settings:
 
 * **Auto-Backup on Every Change** - writes a copy of your full configuration to
-  `Downloads/tabee.auto-backup.json` every time you add, edit, or remove
+  `Downloads/tab-automator.auto-backup.json` every time you add, edit, or remove
   something, so a browser reset or a bad import never costs you your rules.
   The file is overwritten in place (no growing pile of numbered copies).
 * **Sync Across Devices** - mirrors your configuration through your browser's
   built-in account sync (`chrome.storage.sync`), so it shows up automatically
   on your other devices signed into the same account. Very large
   configurations (lots of custom icons) may exceed the browser's sync quota;
-  Tabee detects that and falls back to local + Downloads backup only, rather
+  Tab Automator detects that and falls back to local + Downloads backup only, rather
   than failing silently.
 
 Both are off by default and can be toggled independently.
 
 ## Installation
 
-Tabee is compatible with Chromium-based browsers.
-
-| Browser        | Install Link                                                                                                | Web Store             |
-|----------------|-------------------------------------------------------------------------------------------------------------|-----------------------|
-| Google Chrome  | ⬇️ [Install](https://chromewebstore.google.com/detail/tabee-tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia)        | Chrome Web Store      |
-| Arc            | ⬇️ [Install](https://chromewebstore.google.com/detail/tabee-tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia)        | Chrome Web Store      |
-| Brave          | ⬇️ [Install](https://chromewebstore.google.com/detail/tabee-tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia)        | Chrome Web Store      |
-| Opera          | ⬇️ Available Soon                                  | Opera Addons          |
-| Microsoft Edge | ⬇️ Available Soon | Microsoft Edge Addons |
-
-Firefox and Safari are not available.
+Tab Automator works in Chromium-based browsers (Chrome, Arc, Brave, Edge, Opera). The Chrome Web
+Store listing is coming soon; until then, see [Load local extension in Chrome](#load-local-extension-in-chrome).
 
 ## Usage
 
-* Click on the Tabee icon <img src="public/assets/icon_16.png" alt="icon"> to open Popup or Right-Click then Options.
+* Click on the Tab Automator icon <img src="public/assets/icon_16.png" alt="icon"> to open Popup or Right-Click then Options.
 * Create your tab rules.
 * Try & enjoy!
 
@@ -63,6 +59,8 @@ Firefox and Safari are not available.
 I needed a quick UI element in Chrome to know the environment of the tab, as a Web developer I often use multiple versions of the same website: local, pre-production and production.
 
 Not easy to find the appropriate tab when you have multiple tabs called "My awesome website".
+
+*(In FuryBee's words, from the original project.)*
 
 I created Tabee (formerly Tab Modifier) to add prefixes to website titles with a specific match.
 
@@ -74,7 +72,7 @@ After that, I have added more features like "auto-pin", custom favicons and more
 
 ## Core system
 
-Tabee is based on user *rules* and act on the tab URL that matches the first seen rule. When you open a tab (or refresh), the extension will check if the URL matches a rule and apply the actions.
+Tab Automator is based on user *rules* and act on the tab URL that matches the first seen rule. When you open a tab (or refresh), the extension will check if the URL matches a rule and apply the actions.
 
 Aware of that, there is no reason to include a feature that is not "rule-based". Prefer to install specific extensions or create your own.
 
@@ -156,7 +154,7 @@ Another solution consists in transform your image in the [Data URI format](https
 
 Related issues: [#11](https://github.com/furybee/chrome-tab-modifier/issues/11), [#14](https://github.com/furybee/chrome-tab-modifier/issues/14)
 
-Pages that start with `chrome://` URL are protected. No content script can be injected then Tab Modifier will not work on these pages.
+Pages that start with `chrome://` URL are protected. No content script can be injected then Tab Automator will not work on these pages.
 
 ### Local files `file:///`
 
@@ -194,11 +192,9 @@ Go to `chrome://extensions/` and enable the "Developer mode".
 
 Click on "Load unpacked extension..." and select the project `dist/` folder.
 
-## Donation
+## Supporting the original author
 
-A huge thanks to all donators!
-
-If you like this extension and want to support its development, you can make a donation by clicking one of the links below.
+Tab Automator is built on FuryBee's work. If you like it, consider supporting FuryBee directly:
 
 - [Buy Me a Coffee](https://www.buymeacoffee.com/xyugxh7bk)
 - [Credit Card](https://donate.stripe.com/fZeg1Sgml971dbieUU)
@@ -206,7 +202,7 @@ If you like this extension and want to support its development, you can make a d
 
 ## Security
 
-Tabee takes security seriously. Every code change goes through automated security checks in our CI/CD pipeline:
+Tab Automator inherits Tabee's security checks. Every code change goes through automated security checks in our CI/CD pipeline:
 
 - **ClamAV Malware Scan**: Detects viruses, trojans, and malware in the codebase
 - **Gitleaks Secret Scan**: Prevents hardcoded secrets, API keys, and credentials
@@ -218,4 +214,4 @@ For detailed security documentation, see [docs/SECURITY.md](docs/SECURITY.md).
 
 ## License
 
-See [license](LICENSE.md) file.
+MIT. Original work copyright (c) 2014 FuryBee; see [LICENSE.md](LICENSE.md).

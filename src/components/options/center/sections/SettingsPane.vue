@@ -7,7 +7,7 @@
 				<div class="grid grid-cols-6">
 					<div class="col-span-5">
 						<h3 class="font-bold">Theme</h3>
-						<p>Change Tabee theme</p>
+						<p>Change Tab Automator theme</p>
 					</div>
 					<div class="col-span-1">
 						<CustomSelect v-model="currentTheme" :items="themes" :show-clear-btn="false" />
@@ -50,7 +50,7 @@
 				<div class="grid grid-cols-6">
 					<div class="col-span-5">
 						<h3 class="font-bold">Lightweight Mode</h3>
-						<p>Reduce memory usage by disabling Tabee on specific domains or URLs.</p>
+						<p>Reduce memory usage by disabling Tab Automator on specific domains or URLs.</p>
 					</div>
 					<div class="col-span-1 flex justify-end">
 						<input
@@ -139,7 +139,7 @@
 					<div class="modal-box">
 						<h3 class="font-bold text-lg">Add Lightweight Mode Pattern</h3>
 						<p class="text-xs opacity-70 mt-2">
-							Specify a domain or regex pattern to exclude from Tabee processing.
+							Specify a domain or regex pattern to exclude from Tab Automator processing.
 						</p>
 
 						<div class="form-control w-full mt-4">
@@ -322,7 +322,7 @@
 							Mirror your configuration through your browser's built-in account sync
 							(<code>chrome.storage.sync</code>), so it's available on your other devices signed
 							into the same account. Very large configurations (lots of custom icons) may not fit
-							the sync quota - Tabee falls back to local + Downloads backup only if so.
+							the sync quota - Tab Automator falls back to local + Downloads backup only if so.
 						</p>
 					</div>
 					<div class="col-span-1 flex justify-end">
@@ -531,7 +531,7 @@ const syncNow = async () => {
 
 		syncStatusText.value = `Last synced: ${new Date().toLocaleString()}`;
 	} catch (error) {
-		console.error('[Tabee] Sync Now failed:', error);
+		console.error('[Tab Automator] Sync Now failed:', error);
 
 		emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
 			type: 'error',
@@ -692,7 +692,7 @@ const exportConfig = async () => {
 	const a = document.createElement('a');
 
 	a.href = url;
-	a.download = 'tabee.config.json';
+	a.download = 'tab-automator.config.json';
 	document.body.appendChild(a);
 	a.click();
 

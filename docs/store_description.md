@@ -1,4 +1,6 @@
-Take full control of your browser tabs with Tabee! Rename, organize, and customize your tabs effortlessly with powerful automation rules.
+Take full control of your browser tabs with Tab Automator! Rename, organize, and customize your tabs effortlessly with powerful automation rules.
+
+Tab Automator is a community fork of Tabee (formerly Tab Modifier) by FuryBee, published under the MIT license. It adds auto-backup to Downloads and cross-device sync while those features wait on upstream review. It is not affiliated with or endorsed by FuryBee; the original is still available as "Tabee: Tab Modifier" on the Chrome Web Store.
 
 ✨ Key Features:
 
@@ -45,8 +47,9 @@ Take full control of your browser tabs with Tabee! Rename, organize, and customi
 - Reduce memory usage on resource-heavy sites
 - Disable listeners selectively
 
-♻️ Sync Across Devices
-- Automatic rule synchronization via Chrome Sync
+♻️ Backup & Sync Across Devices
+- Optional auto-backup of your full configuration to Downloads on every change
+- Optional rule synchronization via your browser account (Chrome Sync)
 - Consistent experience on all your devices
 
 🔐 Privacy First
@@ -63,8 +66,8 @@ Take full control of your browser tabs with Tabee! Rename, organize, and customi
 - Keyboard shortcuts for common actions
 
 🌍 Open Source:
-Contribute or report issues: https://github.com/furybee/chrome-tab-modifier
-Latest releases: https://github.com/furybee/chrome-tab-modifier/releases
+Tab Automator source and issues: https://github.com/mikesimone/chrome-tab-modifier
+Original Tabee project by FuryBee: https://github.com/furybee/chrome-tab-modifier
 
 🔒 About Permissions:
 Access to all websites is required to update tabs as you browse. We respect your privacy - no data is collected or transmitted. All your rules and settings remain on your
