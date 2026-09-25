@@ -157,28 +157,28 @@ export const useRulesStore = defineStore('rules', {
 		},
 		async init() {
 			try {
-				console.log('[Tabee] init() started');
+				console.log('[Tab Automator] init() started');
 				// Load data - migration from sync to local happens automatically in _getStorageAsync
 				let tabModifier = await _getStorageAsync();
 
-				console.log('[Tabee] init() loaded data:', {
+				console.log('[Tab Automator] init() loaded data:', {
 					hasData: !!tabModifier,
 					rulesCount: tabModifier?.rules.length,
 					groupsCount: tabModifier?.groups.length,
 				});
 
 				if (!tabModifier) {
-					console.log('[Tabee] init() no data, calling save()');
+					console.log('[Tab Automator] init() no data, calling save()');
 					await this.save();
 				} else {
-					console.log('[Tabee] init() calling setConfig with shouldInit=false');
+					console.log('[Tab Automator] init() calling setConfig with shouldInit=false');
 					tabModifier = await this.setConfig(tabModifier, false);
 
 					if (!tabModifier) {
 						throw new Error('Failed to set config');
 					}
 
-					console.log('[Tabee] init() after setConfig:', {
+					console.log('[Tab Automator] init() after setConfig:', {
 						rulesCount: tabModifier.rules.length,
 						groupsCount: tabModifier.groups.length,
 					});
@@ -191,19 +191,26 @@ export const useRulesStore = defineStore('rules', {
 					tabModifier.groups = this.addMissingInvisibleChar(tabModifier.groups);
 					tabModifier.settings = this.fixMissingLightweightModeSettings(tabModifier.settings);
 
-					console.log('[Tabee] init() setting store state with', tabModifier.rules.length, 'rules');
+					console.log(
+						'[Tab Automator] init() setting store state with',
+						tabModifier.rules.length,
+						'rules'
+					);
 					this.groups = tabModifier.groups;
 					this.rules = tabModifier.rules;
 					this.settings = tabModifier.settings;
 
-					console.log('[Tabee] init() store state updated, this.rules.length =', this.rules.length);
+					console.log(
+						'[Tab Automator] init() store state updated, this.rules.length =',
+						this.rules.length
+					);
 				}
 
 				await this.applyTheme(this.settings.theme);
 
-				console.log('[Tabee] init() calling save()');
+				console.log('[Tab Automator] init() calling save()');
 				await this.save();
-				console.log('[Tabee] init() completed successfully');
+				console.log('[Tab Automator] init() completed successfully');
 			} catch (error) {
 				console.error('Failed to init:', error);
 				throw error; // Re-throw so caller knows init failed
@@ -214,7 +221,7 @@ export const useRulesStore = defineStore('rules', {
 			shouldInit: boolean = true
 		): Promise<TabModifierSettings | undefined> {
 			try {
-				console.log('[Tabee] setConfig() called with', {
+				console.log('[Tab Automator] setConfig() called with', {
 					rulesCount: config.rules?.length,
 					groupsCount: config.groups?.length,
 					shouldInit,
@@ -234,18 +241,22 @@ export const useRulesStore = defineStore('rules', {
 					...config,
 				};
 
-				console.log('[Tabee] setConfig() calling _setStorage with', config.rules.length, 'rules');
+				console.log(
+					'[Tab Automator] setConfig() calling _setStorage with',
+					config.rules.length,
+					'rules'
+				);
 				await _setStorage(config);
-				console.log('[Tabee] setConfig() _setStorage completed');
+				console.log('[Tab Automator] setConfig() _setStorage completed');
 
 				if (shouldInit) {
-					console.log('[Tabee] setConfig() calling init()');
+					console.log('[Tab Automator] setConfig() calling init()');
 					await this.init();
-					console.log('[Tabee] setConfig() init() returned');
+					console.log('[Tab Automator] setConfig() init() returned');
 				}
 
 				console.log(
-					'[Tabee] setConfig() returning mergedConfig with',
+					'[Tab Automator] setConfig() returning mergedConfig with',
 					mergedConfig.rules.length,
 					'rules'
 				);

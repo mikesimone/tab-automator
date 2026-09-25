@@ -153,7 +153,7 @@ export async function _pushToSync(tabModifier: TabModifierSettings): Promise<Syn
 		// metadata item itself.
 		if (estimatedBytes > quotaBytes * 0.9 || chunks.length + 1 > maxItems) {
 			console.warn(
-				`[Tabee] Config too large to sync (~${estimatedBytes} bytes, limit ~${quotaBytes}). ` +
+				`[Tab Automator] Config too large to sync (~${estimatedBytes} bytes, limit ~${quotaBytes}). ` +
 					'Falling back to local storage only.'
 			);
 			return 'too-large';
@@ -185,11 +185,13 @@ export async function _pushToSync(tabModifier: TabModifierSettings): Promise<Syn
 
 		await _storageSet(chrome.storage.local, { [LOCAL_SYNC_HASH_KEY]: hash });
 
-		debugLog(`[Tabee] Pushed config to sync (${chunks.length} chunk(s), hash ${hash.slice(0, 8)})`);
+		debugLog(
+			`[Tab Automator] Pushed config to sync (${chunks.length} chunk(s), hash ${hash.slice(0, 8)})`
+		);
 
 		return 'ok';
 	} catch (error) {
-		console.error('[Tabee] Failed to push config to sync:', error);
+		console.error('[Tab Automator] Failed to push config to sync:', error);
 		return 'unavailable';
 	}
 }
@@ -236,11 +238,11 @@ export async function _pullFromSyncIfNewer(): Promise<SyncPullResult> {
 			await _storageSet(chrome.storage.local, { [LOCAL_SYNC_HASH_KEY]: remoteMeta.hash });
 		}
 
-		debugLog('[Tabee] Pulled newer config from sync');
+		debugLog('[Tab Automator] Pulled newer config from sync');
 
 		return { status: 'updated', data };
 	} catch (error) {
-		console.error('[Tabee] Failed to pull config from sync:', error);
+		console.error('[Tab Automator] Failed to pull config from sync:', error);
 		return { status: 'unavailable' };
 	}
 }

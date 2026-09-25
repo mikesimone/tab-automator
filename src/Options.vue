@@ -98,10 +98,16 @@
 				<div class="h-full bg-base-300">
 					<div class="px-8 pt-4">
 						<h1 class="text-xl font-bold flex items-center gap-2">
-							<img src="/assets/icon_32.png" alt="Tabee icon" class="w-5 h-5" />
-							Tabee
+							<img src="/assets/icon_32.png" alt="Tab Automator icon" class="w-5 h-5" />
+							Tab Automator
 						</h1>
-						<p class="text-xs text-base-content/70 mt-1">The original Tab Modifier.</p>
+						<p class="text-xs text-base-content/70 mt-1">
+							A community fork of
+							<a class="link" href="https://github.com/furybee/chrome-tab-modifier" target="_blank"
+								>Tabee</a
+							>
+							by FuryBee.
+						</p>
 					</div>
 
 					<Menu :menu-items="sectionItems" title="Sections" @on-menu-clicked="onMenuClicked" />
@@ -173,24 +179,24 @@ const sectionItems = [
 	{
 		title: 'Help',
 		emoji: '❓',
-		description: 'Learn how to use Tabee features',
+		description: 'Learn how to use Tab Automator features',
 		component: 'HelpPane',
 	},
 ] as MenuItem[];
 
 const resourceItems = [
 	{
-		title: 'Chrome Web Store',
-		emoji: '🌐',
-		link: 'https://chrome.google.com/webstore/detail/tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia',
-	},
-	{
 		title: 'GitHub',
 		emoji: '💻',
+		link: 'https://github.com/mikesimone/chrome-tab-modifier',
+	},
+	{
+		title: 'Original Tabee',
+		emoji: '🐝',
 		link: 'https://github.com/furybee/chrome-tab-modifier',
 	},
 	{
-		title: 'Donate',
+		title: 'Support FuryBee',
 		emoji: '💝',
 		component: 'DonationPane',
 	},

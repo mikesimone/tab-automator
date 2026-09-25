@@ -3,11 +3,11 @@ import { debugLog } from './debugLog.ts';
 
 /**
  * Fixed filename so every auto-backup overwrites the previous one instead of
- * piling up "tabee.auto-backup (1).json", "(2).json", etc. in Downloads.
- * Deliberately different from the manual "Export" filename (tabee.config.json)
+ * piling up "tab-automator.auto-backup (1).json", "(2).json", etc. in Downloads.
+ * Deliberately different from the manual "Export" filename (tab-automator.config.json)
  * so the two features never collide.
  */
-export const AUTO_BACKUP_FILENAME = 'tabee.auto-backup.json';
+export const AUTO_BACKUP_FILENAME = 'tab-automator.auto-backup.json';
 
 function _toBase64Utf8(input: string): string {
 	const bytes = new TextEncoder().encode(input);
@@ -49,9 +49,9 @@ export async function _autoBackupConfig(tabModifier: TabModifierSettings): Promi
 			conflictAction: 'overwrite',
 		});
 
-		debugLog('[Tabee] Auto-backup written to Downloads/' + AUTO_BACKUP_FILENAME);
+		debugLog('[Tab Automator] Auto-backup written to Downloads/' + AUTO_BACKUP_FILENAME);
 	} catch (error) {
 		// Never let a backup failure block the actual config save.
-		console.error('[Tabee] Auto-backup to Downloads failed:', error);
+		console.error('[Tab Automator] Auto-backup to Downloads failed:', error);
 	}
 }
