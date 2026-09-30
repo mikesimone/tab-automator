@@ -26,8 +26,9 @@
 						paste directly from clipboard.
 					</li>
 					<li>
-						<strong>Auto-refresh tabs</strong> - Reload matching tabs on a timer, optionally only
-						when you're not looking at them. Set it in a rule's Auto-refresh section.
+						<strong>Auto-refresh tabs</strong> - Reload tabs on a timer without touching the tab
+						you're looking at. Set it in a rule's Auto-refresh section, or right-click any page and
+						choose Auto-refresh this tab (where you can also pause it for that tab).
 					</li>
 					<li>
 						<strong>Pin tabs</strong> - Automatically pin important websites to keep them always

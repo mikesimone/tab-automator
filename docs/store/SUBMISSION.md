@@ -18,8 +18,8 @@ Everything below is ready to paste. Store images are in `docs/store/`; the zip c
 - **Store icon:** `icon_128.png`
 - **Screenshots:** `store_1_rules.png`, `store_2_backup_sync.png` (both 1280×800)
 - **Small promo tile:** `store_promo_tile_440x280.png`
-- **Homepage URL:** https://github.com/mikesimone/chrome-tab-modifier
-- **Support URL:** https://github.com/mikesimone/chrome-tab-modifier/issues
+- **Homepage URL:** https://github.com/mikesimone/tab-automator
+- **Support URL:** https://github.com/mikesimone/tab-automator/issues
 - Leave the marquee tile and video empty.
 
 ## 4. Privacy tab
@@ -42,7 +42,7 @@ Everything below is ready to paste. Store images are in `docs/store/`; the zip c
 
 **Data usage:** leave every data-type box *unchecked*. The extension makes no network requests and collects nothing. Then tick all three certifications (not sold to third parties, not used for unrelated purposes, not used for creditworthiness).
 
-**Privacy policy URL:** not required when no user data is collected. If the form insists, use https://github.com/mikesimone/chrome-tab-modifier#readme.
+**Privacy policy URL:** not required when no user data is collected. If the form insists, use https://github.com/mikesimone/tab-automator#readme.
 
 ## 5. Distribution tab
 - **Payments:** Free

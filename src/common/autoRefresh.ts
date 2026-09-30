@@ -11,7 +11,9 @@ export function _getDefaultAutoRefresh(): AutoRefresh {
 	return {
 		enabled: false,
 		interval_seconds: 5 * 60,
-		only_when_tab_inactive: false,
+		// Refreshing the tab you're looking at is the most annoying thing an
+		// auto-refresher can do, so new rules start with this on.
+		only_when_tab_inactive: true,
 		only_when_window_unfocused: false,
 		skip_if_playing_audio: true,
 		skip_if_editing: true,
@@ -59,6 +61,7 @@ export function _getAutoRefresh(rule: Rule | undefined | null): AutoRefresh | nu
 }
 
 export type AutoRefreshTabState = {
+	offline: boolean;
 	tabActive: boolean;
 	windowFocused: boolean;
 	audible: boolean;
@@ -74,6 +77,7 @@ export function _getAutoRefreshBlocker(
 	settings: AutoRefresh,
 	state: AutoRefreshTabState
 ): string | null {
+	if (state.offline) return 'browser is offline';
 	if (state.discarded) return 'tab is discarded';
 	if (state.loading) return 'tab is still loading';
 	if (settings.only_when_tab_inactive && state.tabActive) return 'tab is active';
@@ -82,6 +86,64 @@ export function _getAutoRefreshBlocker(
 	if (settings.skip_if_editing && state.editing) return 'page has unsaved input';
 
 	return null;
+}
+
+// Interval choices offered in the rule form and the right-click menu.
+export const AUTO_REFRESH_PRESETS: { seconds: number; label: string }[] = [
+	{ seconds: 30, label: '30 seconds' },
+	{ seconds: 60, label: '1 minute' },
+	{ seconds: 5 * 60, label: '5 minutes' },
+	{ seconds: 60 * 60, label: '1 hour' },
+	{ seconds: 24 * 60 * 60, label: '1 day' },
+];
+
+/**
+ * Per-tab choices made from the right-click menu. They live in session
+ * storage, so they last until the tab or the browser closes.
+ */
+export type AutoRefreshTabOverride = {
+	paused?: boolean;
+	// Auto-refresh started from the menu on a tab no rule covers (or with a
+	// different interval). Stops when the tab moves to another site.
+	adhoc?: { interval_seconds: number; host: string };
+};
+
+export type AutoRefreshTabOverrides = Record<string, AutoRefreshTabOverride>;
+
+function _getHost(url: string): string {
+	try {
+		return new URL(url).host;
+	} catch {
+		return '';
+	}
+}
+
+export function _makeAdhocOverride(url: string, intervalSeconds: number): AutoRefreshTabOverride {
+	return {
+		adhoc: { interval_seconds: _clampAutoRefreshInterval(intervalSeconds), host: _getHost(url) },
+	};
+}
+
+/**
+ * Works out a tab's effective auto-refresh settings from its matching rule
+ * and any right-click choice for that tab. The menu choice wins over the rule.
+ */
+export function _resolveTabAutoRefresh(
+	rule: Rule | undefined | null,
+	override: AutoRefreshTabOverride | undefined,
+	url: string
+): AutoRefresh | null {
+	if (override?.paused) return null;
+
+	if (override?.adhoc && override.adhoc.host === _getHost(url)) {
+		return {
+			..._getDefaultAutoRefresh(),
+			enabled: true,
+			interval_seconds: _clampAutoRefreshInterval(override.adhoc.interval_seconds),
+		};
+	}
+
+	return _getAutoRefresh(rule);
 }
 
 export function _getAutoRefreshAlarmName(tabId: number): string {

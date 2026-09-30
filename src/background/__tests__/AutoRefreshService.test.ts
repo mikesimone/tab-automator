@@ -19,6 +19,19 @@ const mockChrome = {
 	windows: {
 		get: vi.fn(),
 	},
+	action: {
+		setBadgeText: vi.fn(),
+		setBadgeBackgroundColor: vi.fn(),
+	},
+	storage: {
+		session: {
+			data: {} as Record<string, unknown>,
+			get: vi.fn(async (key: string) => ({ [key]: mockChrome.storage.session.data[key] })),
+			set: vi.fn(async (items: Record<string, unknown>) => {
+				Object.assign(mockChrome.storage.session.data, JSON.parse(JSON.stringify(items)));
+			}),
+		},
+	},
 };
 
 (globalThis as any).chrome = mockChrome;
@@ -49,13 +62,14 @@ describe('AutoRefreshService', () => {
 		mockChrome.alarms.getAll.mockResolvedValue([]);
 		mockChrome.tabs.sendMessage.mockResolvedValue({ editing: false });
 		mockChrome.windows.get.mockResolvedValue({ focused: false });
+		mockChrome.storage.session.data = {};
 	});
 
 	it('schedules an alarm when a matching page finishes loading', async () => {
 		const config = makeConfig({ interval_seconds: 120 });
 		const service = new AutoRefreshService(async () => config);
 
-		await service.onTabUpdated(dashboardTab, config.rules[0], { status: 'complete' });
+		await service.onTabUpdated(dashboardTab, { status: 'complete' });
 
 		expect(mockChrome.alarms.create).toHaveBeenCalledWith('tab-automator-auto-refresh:7', {
 			delayInMinutes: 2,
@@ -66,7 +80,7 @@ describe('AutoRefreshService', () => {
 		const config = makeConfig(null);
 		const service = new AutoRefreshService(async () => config);
 
-		await service.onTabUpdated(dashboardTab, config.rules[0], { status: 'complete' });
+		await service.onTabUpdated(dashboardTab, { status: 'complete' });
 
 		expect(mockChrome.alarms.create).not.toHaveBeenCalled();
 		expect(mockChrome.alarms.clear).toHaveBeenCalledWith('tab-automator-auto-refresh:7');
@@ -82,8 +96,8 @@ describe('AutoRefreshService', () => {
 		expect(mockChrome.tabs.reload).toHaveBeenCalledWith(7, { bypassCache: true });
 	});
 
-	it('postpones by 30 seconds while the tab is active and the rule wants inactive tabs only', async () => {
-		const config = makeConfig({ only_when_tab_inactive: true });
+	it('postpones by 30 seconds while the tab is active (the default)', async () => {
+		const config = makeConfig({});
 		const service = new AutoRefreshService(async () => config);
 		mockChrome.tabs.get.mockResolvedValue({ ...dashboardTab, active: true });
 
@@ -148,8 +162,80 @@ describe('AutoRefreshService', () => {
 		expect(mockChrome.tabs.reload).not.toHaveBeenCalled();
 	});
 
+	it('waits while the browser is offline', async () => {
+		const service = new AutoRefreshService(async () => makeConfig({}), () => false);
+		mockChrome.tabs.get.mockResolvedValue(dashboardTab);
+
+		await service.handleAlarm({ name: 'tab-automator-auto-refresh:7' } as chrome.alarms.Alarm);
+
+		expect(mockChrome.tabs.reload).not.toHaveBeenCalled();
+	});
+
+	describe('right-click menu', () => {
+		const otherTab = { ...dashboardTab, id: 9, url: 'https://news.test/today' } as chrome.tabs.Tab;
+
+		it('starts refreshing a tab no rule covers and shows the badge', async () => {
+			const service = new AutoRefreshService(async () => makeConfig(null));
+
+			await service.startForTab(otherTab, 300);
+
+			expect(mockChrome.alarms.create).toHaveBeenCalledWith('tab-automator-auto-refresh:9', {
+				delayInMinutes: 5,
+			});
+			expect(mockChrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 9, text: '↻' });
+
+			mockChrome.tabs.get.mockResolvedValue(otherTab);
+			await service.handleAlarm({ name: 'tab-automator-auto-refresh:9' } as chrome.alarms.Alarm);
+			expect(mockChrome.tabs.reload).toHaveBeenCalledWith(9, { bypassCache: false });
+		});
+
+		it('pauses a rule-driven tab until resumed', async () => {
+			const config = makeConfig({ interval_seconds: 60 });
+			const service = new AutoRefreshService(async () => config);
+			mockChrome.tabs.get.mockResolvedValue(dashboardTab);
+
+			await service.pauseTab(7);
+			expect(mockChrome.alarms.clear).toHaveBeenCalledWith('tab-automator-auto-refresh:7');
+			expect(mockChrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 7, text: '⏸' });
+
+			// A reload while paused must not re-arm the timer.
+			await service.onTabUpdated(dashboardTab, { status: 'complete' });
+			await service.handleAlarm({ name: 'tab-automator-auto-refresh:7' } as chrome.alarms.Alarm);
+			expect(mockChrome.alarms.create).not.toHaveBeenCalled();
+			expect(mockChrome.tabs.reload).not.toHaveBeenCalled();
+
+			await service.resumeTab(dashboardTab);
+			expect(mockChrome.alarms.create).toHaveBeenCalledWith('tab-automator-auto-refresh:7', {
+				delayInMinutes: 1,
+			});
+		});
+
+		it('stops a menu-started refresh when the tab moves to another site', async () => {
+			const service = new AutoRefreshService(async () => makeConfig(null));
+			await service.startForTab(otherTab, 30);
+			vi.clearAllMocks();
+
+			await service.onTabUpdated(
+				{ ...otherTab, url: 'https://elsewhere.test/' },
+				{ url: 'https://elsewhere.test/' }
+			);
+
+			expect(mockChrome.alarms.clear).toHaveBeenCalledWith('tab-automator-auto-refresh:9');
+			expect(mockChrome.storage.session.data['auto_refresh_tab_overrides']).toEqual({});
+		});
+
+		it('forgets the tab when it closes', async () => {
+			const service = new AutoRefreshService(async () => makeConfig(null));
+			await service.startForTab(otherTab, 30);
+
+			await service.onTabRemoved(9);
+
+			expect(mockChrome.storage.session.data['auto_refresh_tab_overrides']).toEqual({});
+		});
+	});
+
 	describe('syncAllTabs', () => {
-		it('skips the tab scan entirely when no rule uses auto-refresh', async () => {
+		it('skips the tab scan entirely when nothing uses auto-refresh', async () => {
 			const service = new AutoRefreshService(async () => makeConfig(null));
 
 			await service.syncAllTabs();

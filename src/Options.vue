@@ -124,7 +124,7 @@ import TabHivePane from './components/options/center/sections/TabHivePane.vue';
 import SettingsPane from './components/options/center/sections/SettingsPane.vue';
 import HelpPane from './components/options/center/sections/HelpPane.vue';
 import WhatsNewPane from './components/options/center/sections/WhatsNewPane.vue';
-import { _hasUnseenWhatsNew } from './common/whatsNew.ts';
+import { WHATS_NEW_HASH, _hasUnseenWhatsNew } from './common/whatsNew.ts';
 import BurgerIcon from './components/icons/BurgerIcon.vue';
 import CloseIcon from './components/icons/CloseIcon.vue';
 import ClipboardIcon from './components/icons/ClipboardIcon.vue';
@@ -193,7 +193,7 @@ const resourceItems = [
 	{
 		title: 'GitHub',
 		emoji: '💻',
-		link: 'https://github.com/mikesimone/chrome-tab-modifier',
+		link: 'https://github.com/mikesimone/tab-automator',
 	},
 ] as MenuItem[];
 
@@ -292,7 +292,9 @@ onMounted(async () => {
 	await rulesStore.init();
 
 	const whatsNewItem = sectionItems.find((item) => item.component === 'WhatsNewPane');
-	if (whatsNewItem && (await _hasUnseenWhatsNew())) {
+	if (whatsNewItem && location.hash === WHATS_NEW_HASH) {
+		onMenuClicked(whatsNewItem);
+	} else if (whatsNewItem && (await _hasUnseenWhatsNew())) {
 		whatsNewItem.isNew = true;
 	}
 
