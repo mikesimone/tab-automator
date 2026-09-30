@@ -45,8 +45,9 @@ Both are off by default and can be toggled independently.
 
 ## Installation
 
-Tab Automator works in Chromium-based browsers (Chrome, Arc, Brave, Edge, Opera). The Chrome Web
-Store listing is coming soon; until then, see [Load local extension in Chrome](#load-local-extension-in-chrome).
+Tab Automator works in Chromium-based browsers (Chrome, Arc, Brave, Edge, Opera). Install it from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/mookagdegldeclccpbjgpbdacipiehff), or see
+[Load local extension in Chrome](#load-local-extension-in-chrome) to run it from source.
 
 ## Usage
 

@@ -186,6 +186,11 @@ const sectionItems = [
 
 const resourceItems = [
 	{
+		title: 'Chrome Web Store',
+		emoji: '🧩',
+		link: 'https://chromewebstore.google.com/detail/mookagdegldeclccpbjgpbdacipiehff',
+	},
+	{
 		title: 'GitHub',
 		emoji: '💻',
 		link: 'https://github.com/mikesimone/chrome-tab-modifier',
