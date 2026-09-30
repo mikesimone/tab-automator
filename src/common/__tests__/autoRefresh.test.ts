@@ -6,12 +6,15 @@ import {
 	_getAutoRefreshBlocker,
 	_getDefaultAutoRefresh,
 	_getTabIdFromAutoRefreshAlarm,
+	_makeAdhocOverride,
+	_resolveTabAutoRefresh,
 	_splitAutoRefreshInterval,
 } from '../autoRefresh';
 import { _getDefaultRule } from '../storage';
 import { Rule } from '../types';
 
 const idleState = {
+	offline: false,
 	tabActive: false,
 	windowFocused: false,
 	audible: false,
@@ -91,12 +94,17 @@ describe('_getAutoRefreshBlocker', () => {
 		expect(_getAutoRefreshBlocker(settings, idleState)).toBeNull();
 	});
 
-	it('refreshes an active tab unless limited to inactive tabs', () => {
+	it('leaves the active tab alone by default, and can be told to refresh it', () => {
 		const state = { ...idleState, tabActive: true };
-		expect(_getAutoRefreshBlocker(settings, state)).toBeNull();
+		expect(_getDefaultAutoRefresh().only_when_tab_inactive).toBe(true);
+		expect(_getAutoRefreshBlocker(settings, state)).not.toBeNull();
 		expect(
-			_getAutoRefreshBlocker({ ...settings, only_when_tab_inactive: true }, state)
-		).not.toBeNull();
+			_getAutoRefreshBlocker({ ...settings, only_when_tab_inactive: false }, state)
+		).toBeNull();
+	});
+
+	it('waits while the browser is offline', () => {
+		expect(_getAutoRefreshBlocker(settings, { ...idleState, offline: true })).not.toBeNull();
 	});
 
 	it('waits for the window to lose focus when asked to', () => {
@@ -134,5 +142,45 @@ describe('alarm names and interval display', () => {
 		expect(_splitAutoRefreshInterval(7200)).toEqual({ value: 2, unit: 'hours' });
 		expect(_splitAutoRefreshInterval(300)).toEqual({ value: 5, unit: 'minutes' });
 		expect(_splitAutoRefreshInterval(45)).toEqual({ value: 45, unit: 'seconds' });
+	});
+});
+
+describe('_resolveTabAutoRefresh', () => {
+	const url = 'https://news.example.com/page';
+	const ruleWithRefresh = () => {
+		const rule = _getDefaultRule('r', 't', 'example.com');
+		rule.tab.auto_refresh = { ..._getDefaultAutoRefresh(), enabled: true, interval_seconds: 600 };
+		return rule;
+	};
+
+	it('uses the rule when there is no menu choice', () => {
+		expect(_resolveTabAutoRefresh(ruleWithRefresh(), undefined, url)?.interval_seconds).toBe(600);
+	});
+
+	it('lets a menu interval win over the rule, with the safe defaults', () => {
+		const settings = _resolveTabAutoRefresh(
+			ruleWithRefresh(),
+			_makeAdhocOverride(url, 60),
+			url
+		);
+		expect(settings?.interval_seconds).toBe(60);
+		expect(settings?.only_when_tab_inactive).toBe(true);
+	});
+
+	it('refreshes a tab no rule covers when started from the menu', () => {
+		expect(_resolveTabAutoRefresh(undefined, _makeAdhocOverride(url, 30), url)).not.toBeNull();
+	});
+
+	it('drops a menu interval once the tab is on another site', () => {
+		const override = _makeAdhocOverride(url, 30);
+		expect(_resolveTabAutoRefresh(undefined, override, 'https://other.test/')).toBeNull();
+		expect(_resolveTabAutoRefresh(undefined, override, 'https://news.example.com/other')).not.toBeNull();
+	});
+
+	it('pausing beats both the rule and a menu interval', () => {
+		expect(_resolveTabAutoRefresh(ruleWithRefresh(), { paused: true }, url)).toBeNull();
+		expect(
+			_resolveTabAutoRefresh(undefined, { paused: true, ..._makeAdhocOverride(url, 30) }, url)
+		).toBeNull();
 	});
 });

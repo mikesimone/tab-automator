@@ -12,7 +12,13 @@ export const RELEASES: ReleaseNote[] = [
 				emoji: '🔄',
 				title: 'Auto-refresh',
 				description:
-					'Turn on Auto-refresh in any rule to reload matching tabs on a timer, from every 30 seconds up to every 24 hours. You can limit it to tabs you are not looking at, or to windows that are not focused. By default it waits while a tab is playing audio or while you have typed something into the page, so nothing you are doing gets lost. A 🔄 next to a rule in the list shows it auto-refreshes.',
+					"Reload tabs on a timer: every 30 seconds, 1 minute, 5 minutes, 1 hour, 1 day, or a custom interval. Set it in a rule's Auto-refresh section to cover every matching tab, or right-click any page and choose Auto-refresh this tab. It never reloads the tab you're looking at unless you ask it to, and it waits while a tab plays audio, while you've typed something into the page, or while you're offline. Tabs that auto-refresh show ↻ on the toolbar icon.",
+			},
+			{
+				emoji: '⏸',
+				title: 'Pause auto-refresh on one tab',
+				description:
+					'Right-click a page, then Auto-refresh this tab, then Pause on this tab. It stays paused until you resume it or close the tab, even if a rule covers it.',
 			},
 			{
 				emoji: '✨',
@@ -57,4 +63,22 @@ export async function _markWhatsNewSeen(): Promise<void> {
 	} catch {
 		// Not being able to remember this only means the "new!" badge shows again.
 	}
+}
+
+export const WHATS_NEW_HASH = '#whats-new';
+
+/**
+ * After an update, open the Options page on What's new, once per release
+ * that has notes. Silent updates with no new notes don't open anything.
+ */
+export async function _openWhatsNewAfterUpdate(previousVersion: string | undefined): Promise<void> {
+	const latest = RELEASES[0].version;
+
+	if (previousVersion === latest || !(await _hasUnseenWhatsNew())) {
+		return;
+	}
+
+	await chrome.tabs.create({
+		url: chrome.runtime.getURL(`src/options.html${WHATS_NEW_HASH}`),
+	});
 }

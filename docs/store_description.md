@@ -20,6 +20,13 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 - Enforce unique tabs (auto-close duplicates)
 - Mute noisy tabs
 
+🔄 Auto-refresh
+- Reload tabs every 30 seconds, 1 minute, 5 minutes, 1 hour, 1 day, or any custom interval
+- Set it per rule, or right-click any page to auto-refresh just that tab
+- Never reloads the tab you're looking at (unless you want it to)
+- Waits while a tab plays audio, while you've typed into the page, or while you're offline
+- Pause it on any single tab from the right-click menu
+
 🍯 Tab Hive - Auto-Close Inactive Tabs
 - Automatically close tabs after period of inactivity
 - Save closed tabs for easy restoration
@@ -64,7 +71,7 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 - Keyboard shortcuts for common actions
 
 🌍 Open Source:
-Source code and issues: https://github.com/mikesimone/chrome-tab-modifier
+Source code and issues: https://github.com/mikesimone/tab-automator
 
 🔒 About Permissions:
 Access to all websites is required to update tabs as you browse. We respect your privacy - no data is collected or transmitted. All your rules and settings remain on your

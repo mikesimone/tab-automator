@@ -233,29 +233,54 @@
 				</label>
 				<div v-if="showHelp" class="label pt-0">
 					<span class="text-xs opacity-80 label-text-alt">
-						Reloads matching tabs on a timer. The timer restarts every time the page loads.
+						Reloads matching tabs on a timer. The timer restarts every time the page loads. You can
+						pause it for one tab from the right-click menu.
 					</span>
 				</div>
 			</div>
 
 			<div v-if="autoRefreshEnabled && currentRule.tab.auto_refresh" class="mt-2">
-				<div class="flex items-end gap-2">
-					<div class="form-control">
-						<div class="label">
-							<span class="label-text text-xs">Every</span>
-						</div>
+				<div class="label pb-1">
+					<span class="label-text text-xs">Every</span>
+				</div>
+				<div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+					<label
+						v-for="preset in AUTO_REFRESH_PRESETS"
+						:key="preset.seconds"
+						class="flex items-center gap-1 cursor-pointer"
+					>
+						<input
+							v-model="autoRefreshChoice"
+							:value="preset.seconds"
+							class="radio radio-xs radio-primary"
+							name="auto-refresh-interval"
+							type="radio"
+						/>
+						<span class="label-text text-xs">{{ preset.label }}</span>
+					</label>
+					<label class="flex items-center gap-1 cursor-pointer">
+						<input
+							v-model="autoRefreshChoice"
+							class="radio radio-xs radio-primary"
+							name="auto-refresh-interval"
+							type="radio"
+							value="custom"
+						/>
+						<span class="label-text text-xs">Custom</span>
+					</label>
+					<template v-if="autoRefreshChoice === 'custom'">
 						<input
 							v-model.number="autoRefreshIntervalValue"
 							class="input input-xs input-bordered w-20"
 							min="1"
 							type="number"
 						/>
-					</div>
-					<select v-model="autoRefreshIntervalUnit" class="select select-xs select-bordered">
-						<option value="seconds">seconds</option>
-						<option value="minutes">minutes</option>
-						<option value="hours">hours</option>
-					</select>
+						<select v-model="autoRefreshIntervalUnit" class="select select-xs select-bordered">
+							<option value="seconds">seconds</option>
+							<option value="minutes">minutes</option>
+							<option value="hours">hours</option>
+						</select>
+					</template>
 				</div>
 				<div v-if="autoRefreshIntervalNote" class="label">
 					<span class="text-xs text-warning label-text-alt">{{ autoRefreshIntervalNote }}</span>
@@ -263,7 +288,7 @@
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 mt-2">
 					<label class="cursor-pointer label">
-						<span class="label-text text-xs">Only when the tab isn't the active tab</span>
+						<span class="label-text text-xs">Don't refresh while it's the active tab</span>
 						<input
 							v-model="currentRule.tab.auto_refresh.only_when_tab_inactive"
 							class="toggle toggle-sm toggle-primary"
@@ -271,7 +296,7 @@
 						/>
 					</label>
 					<label class="cursor-pointer label">
-						<span class="label-text text-xs">Only when its window isn't focused</span>
+						<span class="label-text text-xs">Don't refresh while its window is focused</span>
 						<input
 							v-model="currentRule.tab.auto_refresh.only_when_window_unfocused"
 							class="toggle toggle-sm toggle-primary"
@@ -418,6 +443,7 @@ import RegexVisualizer from '../../../../global/RegexVisualizer.vue';
 import SettingsIcon from '../../../../icons/SettingsIcon.vue';
 import NewFeature from '../../../../global/NewFeature.vue';
 import {
+	AUTO_REFRESH_PRESETS,
 	AUTO_REFRESH_MAX_INTERVAL_SECONDS,
 	AUTO_REFRESH_MIN_INTERVAL_SECONDS,
 	_clampAutoRefreshInterval,
@@ -537,6 +563,7 @@ const autoRefreshEnabled = computed({
 });
 
 const UNIT_SECONDS = { seconds: 1, minutes: 60, hours: 3600 } as const;
+const autoRefreshChoice = ref<number | 'custom'>(0);
 const autoRefreshIntervalValue = ref(0);
 const autoRefreshIntervalUnit = ref<keyof typeof UNIT_SECONDS>('minutes');
 
@@ -548,11 +575,16 @@ const loadAutoRefreshInterval = () => {
 	const { value, unit } = _splitAutoRefreshInterval(seconds);
 	autoRefreshIntervalValue.value = value;
 	autoRefreshIntervalUnit.value = unit;
+	autoRefreshChoice.value = AUTO_REFRESH_PRESETS.some((preset) => preset.seconds === seconds)
+		? seconds
+		: 'custom';
 };
 loadAutoRefreshInterval();
 
-const requestedIntervalSeconds = computed(
-	() => (Number(autoRefreshIntervalValue.value) || 0) * UNIT_SECONDS[autoRefreshIntervalUnit.value]
+const requestedIntervalSeconds = computed(() =>
+	autoRefreshChoice.value === 'custom'
+		? (Number(autoRefreshIntervalValue.value) || 0) * UNIT_SECONDS[autoRefreshIntervalUnit.value]
+		: autoRefreshChoice.value
 );
 
 const autoRefreshIntervalNote = computed(() => {

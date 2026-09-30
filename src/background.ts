@@ -13,7 +13,13 @@ import { TabRulesService } from './background/TabRulesService';
 import { TabGroupsService } from './background/TabGroupsService';
 import { TabHiveService } from './background/TabHiveService';
 import { WindowService } from './background/WindowService';
-import { ContextMenuService } from './background/ContextMenuService';
+import {
+	AUTO_REFRESH_MENU_PAUSE,
+	AUTO_REFRESH_MENU_PRESET_PREFIX,
+	AUTO_REFRESH_MENU_RESUME,
+	ContextMenuService,
+} from './background/ContextMenuService';
+import { _openWhatsNewAfterUpdate } from './common/whatsNew';
 import { SpotSearchService } from './background/SpotSearchService';
 import { AutoRefreshService } from './background/AutoRefreshService';
 
@@ -107,7 +113,7 @@ chrome.tabs.onUpdated.addListener(
 		await tabRulesService.applyRuleToTab(tab);
 
 		try {
-			await autoRefreshService.onTabUpdated(tab, rule, changeInfo);
+			await autoRefreshService.onTabUpdated(tab, changeInfo);
 		} catch (error) {
 			console.log('[Tab Automator] Error scheduling auto-refresh:', error);
 		}
@@ -185,7 +191,7 @@ chrome.tabs.onCreated.addListener((tab) => {
  */
 chrome.tabs.onRemoved.addListener((tabId) => {
 	tabHiveService.removeTab(tabId);
-	void autoRefreshService.clear(tabId);
+	void autoRefreshService.onTabRemoved(tabId);
 });
 
 // =============================================================================
@@ -341,6 +347,16 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
 	} else if (info.menuItemId === 'tab-hive-reject-url') {
 		if (!tab?.url) return;
 		await addToTabHiveRejectList(tab.url, 'url');
+	} else if (String(info.menuItemId).startsWith(AUTO_REFRESH_MENU_PRESET_PREFIX)) {
+		if (!tab) return;
+		const seconds = Number(String(info.menuItemId).slice(AUTO_REFRESH_MENU_PRESET_PREFIX.length));
+		await autoRefreshService.startForTab(tab, seconds);
+	} else if (info.menuItemId === AUTO_REFRESH_MENU_PAUSE) {
+		if (tab?.id === undefined) return;
+		await autoRefreshService.pauseTab(tab.id);
+	} else if (info.menuItemId === AUTO_REFRESH_MENU_RESUME) {
+		if (!tab) return;
+		await autoRefreshService.resumeTab(tab);
 	}
 });
 
@@ -508,3 +524,10 @@ console.log('[Tab Automator] 🔍 Spot search command handler registered');
 
 // Export for use in other modules
 export { tabHiveService };
+
+// Show the What's new page once after an update that has release notes
+chrome.runtime.onInstalled.addListener((details) => {
+	if (details.reason === 'update') {
+		void _openWhatsNewAfterUpdate(details.previousVersion);
+	}
+});
