@@ -13,6 +13,7 @@ import { RuleApplicationService } from './content/RuleApplicationService';
 import { SpotSearchUI } from './content/SpotSearchUI';
 import { UrlChangeDetector } from './content/UrlChangeDetector';
 import { debugLog, initDebugMode } from './content/debugLog';
+import { UserInputTracker } from './content/UserInputTracker';
 
 // ============================================================
 // Debug Mode Initialization
@@ -75,6 +76,20 @@ urlChangeDetector.onChange(async (newUrl, _oldUrl) => {
 	await applyRulesForUrl(newUrl);
 });
 urlChangeDetector.start();
+
+// ============================================================
+// Auto-refresh input guard
+// ============================================================
+
+const userInputTracker = new UserInputTracker();
+userInputTracker.start();
+
+// Answers synchronously, so it has to be separate from the async listener below.
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+	if (request?.action === 'autoRefreshCheck') {
+		sendResponse({ editing: userInputTracker.hasUnsavedInput() });
+	}
+});
 
 // ============================================================
 // Message Listeners

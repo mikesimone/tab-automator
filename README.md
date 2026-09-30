@@ -4,14 +4,6 @@
 
 Automate your browser tabs with rules.
 
-> **Tab Automator is a community fork of [Tabee](https://github.com/furybee/chrome-tab-modifier)
-> (formerly Tab Modifier) by [FuryBee](https://github.com/furybee).** Nearly all of this extension
-> is FuryBee's work, used under the MIT license. The fork exists to ship features that are waiting
-> on upstream review, starting with auto-backup and cross-device sync
-> ([furybee/chrome-tab-modifier#555](https://github.com/furybee/chrome-tab-modifier/pull/555)).
-> It is not affiliated with or endorsed by FuryBee. If you'd rather use the original, install
-> [Tabee from the Chrome Web Store](https://chromewebstore.google.com/detail/tabee-tab-modifier/penegkenfmliefdbmnfkidlgjfjcidia).
-
 ## Features
 
 * Rename tab
@@ -54,22 +46,6 @@ Tab Automator works in Chromium-based browsers (Chrome, Arc, Brave, Edge, Opera)
 * Click on the Tab Automator icon <img src="public/assets/icon_16.png" alt="icon"> to open Popup or Right-Click then Options.
 * Create your tab rules.
 * Try & enjoy!
-
-## Why did you build this extension?
-
-I needed a quick UI element in Chrome to know the environment of the tab, as a Web developer I often use multiple versions of the same website: local, pre-production and production.
-
-Not easy to find the appropriate tab when you have multiple tabs called "My awesome website".
-
-*(In FuryBee's words, from the original project.)*
-
-I created Tabee (formerly Tab Modifier) to add prefixes to website titles with a specific match.
-
-* [DEV] My awesome website: `.local.domain.com`
-* [PREPROD] My awesome website: `.preprod.domain.com`
-* [PROD] My awesome website: `.domain.com`
-
-After that, I have added more features like "auto-pin", custom favicons and more.
 
 ## Core system
 
@@ -142,8 +118,6 @@ And now, build your own... 💪
 
 ### Local icon path doesn't work
 
-Related issue: [#5](https://github.com/furybee/chrome-tab-modifier/issues/5)
-
 Due to browser security restrictions, this path won't work: `file://<path>/icon.png`.
 Your icon will not be shown by Chrome.
 
@@ -153,21 +127,15 @@ Another solution consists in transform your image in the [Data URI format](https
 
 ### Chrome system pages `chrome://`
 
-Related issues: [#11](https://github.com/furybee/chrome-tab-modifier/issues/11), [#14](https://github.com/furybee/chrome-tab-modifier/issues/14)
-
 Pages that start with `chrome://` URL are protected. No content script can be injected then Tab Automator will not work on these pages.
 
 ### Local files `file:///`
 
-Related issue: [#13](https://github.com/furybee/chrome-tab-modifier/issues/13)
-
-By default, extensions don't have access to local files. You have to opt-in "Allow access to file URLs" from `chrome://extensions/?id=penegkenfmliefdbmnfkidlgjfjcidia`.
+By default, extensions don't have access to local files. You have to opt-in "Allow access to file URLs" from `chrome://extensions/?id=mookagdegldeclccpbjgpbdacipiehff`.
 
 ### Protected action is not triggered
 
-Related issue: [#95](https://github.com/furybee/chrome-tab-modifier/issues/95)
-
-Since Chrome 90, the JS event that triggers a refresh or a closure has been reworked. See related issue.
+Since Chrome 90, the JS event that triggers a refresh or a closure has been reworked, so the confirmation only appears after you've interacted with the page.
 
 ## Development
 
@@ -193,17 +161,9 @@ Go to `chrome://extensions/` and enable the "Developer mode".
 
 Click on "Load unpacked extension..." and select the project `dist/` folder.
 
-## Supporting the original author
-
-Tab Automator is built on FuryBee's work. If you like it, consider supporting FuryBee directly:
-
-- [Buy Me a Coffee](https://www.buymeacoffee.com/xyugxh7bk)
-- [Credit Card](https://donate.stripe.com/fZeg1Sgml971dbieUU)
-- [Paypal](https://www.paypal.com/donate/?hosted_button_id=T7KZA4MLT5XTU)
-
 ## Security
 
-Tab Automator inherits Tabee's security checks. Every code change goes through automated security checks in our CI/CD pipeline:
+Every code change goes through automated security checks in our CI/CD pipeline:
 
 - **ClamAV Malware Scan**: Detects viruses, trojans, and malware in the codebase
 - **Gitleaks Secret Scan**: Prevents hardcoded secrets, API keys, and credentials
@@ -215,4 +175,4 @@ For detailed security documentation, see [docs/SECURITY.md](docs/SECURITY.md).
 
 ## License
 
-MIT. Original work copyright (c) 2014 FuryBee; see [LICENSE.md](LICENSE.md).
+MIT; see [LICENSE.md](LICENSE.md).

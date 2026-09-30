@@ -1,7 +1,5 @@
 Take full control of your browser tabs with Tab Automator! Rename, organize, and customize your tabs effortlessly with powerful automation rules.
 
-Tab Automator is a community fork of Tabee (formerly Tab Modifier) by FuryBee, published under the MIT license. It adds auto-backup to Downloads and cross-device sync while those features wait on upstream review. It is not affiliated with or endorsed by FuryBee; the original is still available as "Tabee: Tab Modifier" on the Chrome Web Store.
-
 ✨ Key Features:
 
 🏷️ Smart Tab Renaming
@@ -66,8 +64,7 @@ Tab Automator is a community fork of Tabee (formerly Tab Modifier) by FuryBee, p
 - Keyboard shortcuts for common actions
 
 🌍 Open Source:
-Tab Automator source and issues: https://github.com/mikesimone/chrome-tab-modifier
-Original Tabee project by FuryBee: https://github.com/furybee/chrome-tab-modifier
+Source code and issues: https://github.com/mikesimone/chrome-tab-modifier
 
 🔒 About Permissions:
 Access to all websites is required to update tabs as you browse. We respect your privacy - no data is collected or transmitted. All your rules and settings remain on your

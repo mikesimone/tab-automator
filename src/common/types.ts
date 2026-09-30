@@ -6,6 +6,17 @@ export type MenuItem = {
 	description?: string;
 	component?: string;
 	link?: string;
+	isNew?: boolean;
+};
+
+export type AutoRefresh = {
+	enabled: boolean;
+	interval_seconds: number;
+	only_when_tab_inactive: boolean;
+	only_when_window_unfocused: boolean;
+	skip_if_playing_audio: boolean;
+	skip_if_editing: boolean;
+	bypass_cache: boolean;
 };
 
 export type Tab = {
@@ -18,6 +29,8 @@ export type Tab = {
 	group_id?: string | null;
 	title_matcher: string | null;
 	url_matcher: string | null;
+	// Optional so rules exported before auto-refresh existed still import; missing means off.
+	auto_refresh?: AutoRefresh | null;
 };
 
 export type Rule = {
