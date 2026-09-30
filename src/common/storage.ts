@@ -1,4 +1,4 @@
-import { Group, Rule, TabModifierSettings } from './types.ts';
+import { Group, Rule, Settings, TabModifierSettings } from './types.ts';
 import { _clone, _generateRandomId } from './helpers.ts';
 import { _safeRegexTestSync } from './regex-safety.ts';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
@@ -333,7 +333,11 @@ export async function _getRuleFromUrl(url: string): Promise<Rule | undefined> {
 		return;
 	}
 
-	const foundRule = tabModifier.rules.find((r) => {
+	return _findRuleForUrl(tabModifier.rules, url);
+}
+
+export function _findRuleForUrl(rules: Rule[], url: string): Rule | undefined {
+	return rules.find((r) => {
 		// Skip disabled rules
 		if (r.is_enabled === false) {
 			return false;
@@ -362,12 +366,6 @@ export async function _getRuleFromUrl(url: string): Promise<Rule | undefined> {
 				return false;
 		}
 	});
-
-	if (!foundRule) {
-		return;
-	}
-
-	return foundRule;
 }
 
 // Old migration functions removed - no longer needed with local-only storage
@@ -382,8 +380,10 @@ export async function _shouldSkipUrl(url: string): Promise<boolean> {
 		return false;
 	}
 
-	const { settings } = tabModifier;
+	return _isUrlSkippedBySettings(tabModifier.settings, url);
+}
 
+export function _isUrlSkippedBySettings(settings: Settings, url: string): boolean {
 	// If lightweight mode is not enabled or not configured, don't skip any URLs
 	if (!settings.lightweight_mode_enabled || !settings.lightweight_mode_patterns) {
 		return false;

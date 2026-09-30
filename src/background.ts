@@ -15,6 +15,7 @@ import { TabHiveService } from './background/TabHiveService';
 import { WindowService } from './background/WindowService';
 import { ContextMenuService } from './background/ContextMenuService';
 import { SpotSearchService } from './background/SpotSearchService';
+import { AutoRefreshService } from './background/AutoRefreshService';
 
 // Initialize services (Dependency Injection)
 const tabRulesService = new TabRulesService();
@@ -23,6 +24,7 @@ const tabHiveService = new TabHiveService();
 const windowService = new WindowService();
 const contextMenuService = new ContextMenuService();
 const spotSearchService = new SpotSearchService();
+const autoRefreshService = new AutoRefreshService();
 
 // =============================================================================
 // TAB EVENT LISTENERS
@@ -103,6 +105,12 @@ chrome.tabs.onUpdated.addListener(
 		}
 
 		await tabRulesService.applyRuleToTab(tab);
+
+		try {
+			await autoRefreshService.onTabUpdated(tab, rule, changeInfo);
+		} catch (error) {
+			console.log('[Tab Automator] Error scheduling auto-refresh:', error);
+		}
 	}
 );
 
@@ -177,6 +185,7 @@ chrome.tabs.onCreated.addListener((tab) => {
  */
 chrome.tabs.onRemoved.addListener((tabId) => {
 	tabHiveService.removeTab(tabId);
+	void autoRefreshService.clear(tabId);
 });
 
 // =============================================================================
@@ -345,6 +354,13 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
 chrome.storage.onChanged.addListener((changes, areaName) => {
 	if (areaName !== 'sync' && areaName !== 'local') return;
 
+	// Rules are saved compressed in local storage; re-check which tabs auto-refresh.
+	if (areaName === 'local' && (changes.tab_modifier_compressed || changes.tab_modifier)) {
+		void autoRefreshService.syncAllTabs().catch((error) => {
+			console.log('[Tab Automator] Error syncing auto-refresh alarms:', error);
+		});
+	}
+
 	// Check if tab_modifier settings changed
 	if (changes.tab_modifier) {
 		const oldSettings = changes.tab_modifier.oldValue?.settings;
@@ -469,6 +485,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 	if (alarm.name === 'tabee-auto-close-checker') {
 		console.log('[Tab Automator] 🍯 Alarm triggered, checking for inactive tabs...');
 		await tabHiveService.checkAndCloseInactiveTabs();
+	} else if (autoRefreshService.isAutoRefreshAlarm(alarm)) {
+		await autoRefreshService.handleAlarm(alarm);
 	}
 });
 
@@ -478,6 +496,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 // Initialize Tab Hive auto-close tracking when extension loads
 tabHiveService.initialize();
+
+// Make sure tabs that should auto-refresh have an alarm (e.g. after a browser restart)
+void autoRefreshService.syncAllTabs().catch((error) => {
+	console.log('[Tab Automator] Error syncing auto-refresh alarms:', error);
+});
 
 // Log that background script is loaded
 console.log('[Tab Automator] 🐝 Background service worker loaded and ready');

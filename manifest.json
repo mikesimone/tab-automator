@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Tab Automator",
-  "version": "1.2.0",
-  "description": "Automate your tabs with rules: rename, group, pin, and sync. A community fork of Tabee by FuryBee.",
+  "version": "1.3.0",
+  "description": "Automate your tabs with rules: rename, group, pin, and sync.",
   "homepage_url": "https://github.com/mikesimone/chrome-tab-modifier",
   "action": {
     "default_title": "Tab Automator",

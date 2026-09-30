@@ -26,6 +26,10 @@
 						paste directly from clipboard.
 					</li>
 					<li>
+						<strong>Auto-refresh tabs</strong> - Reload matching tabs on a timer, optionally only
+						when you're not looking at them. Set it in a rule's Auto-refresh section.
+					</li>
+					<li>
 						<strong>Pin tabs</strong> - Automatically pin important websites to keep them always
 						visible.
 					</li>
