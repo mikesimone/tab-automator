@@ -368,7 +368,7 @@ export class SpotSearchUI {
 				left: 0;
 				right: 0;
 				bottom: 0;
-				background: rgba(0, 0, 0, 0.7);
+				background: rgba(14, 9, 20, 0.72);
 				z-index: 2147483646;
 			}
 
@@ -380,7 +380,8 @@ export class SpotSearchUI {
 				transform: translateX(-50%);
 				width: 600px;
 				max-width: 90vw;
-				background: #2d3748;
+				background: #241b30;
+				border: 1px solid #3a2d4d;
 				border-radius: 8px;
 				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 				z-index: 2147483647;
@@ -391,15 +392,15 @@ export class SpotSearchUI {
 				width: 100%;
 				padding: 16px 20px;
 				border: none;
-				background: #374151;
-				color: #f3f4f6;
+				background: #2e2340;
+				color: #f1e9fa;
 				font-size: 16px;
 				outline: none;
 				box-sizing: border-box;
 			}
 
 			.tabee-spot-input::placeholder {
-				color: #9ca3af;
+				color: #a996b8;
 			}
 
 			.tabee-spot-results {
@@ -413,11 +414,11 @@ export class SpotSearchUI {
 			}
 
 			.tabee-spot-results::-webkit-scrollbar-track {
-				background: #374151;
+				background: #2e2340;
 			}
 
 			.tabee-spot-results::-webkit-scrollbar-thumb {
-				background: #4b5563;
+				background: #4a3a63;
 				border-radius: 4px;
 			}
 
@@ -431,7 +432,7 @@ export class SpotSearchUI {
 
 			.tabee-spot-item:hover,
 			.tabee-spot-item-selected {
-				background: #374151;
+				background: #2e2340;
 			}
 
 			.tabee-spot-item-icon {
@@ -442,7 +443,7 @@ export class SpotSearchUI {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				color: #9ca3af;
+				color: #a996b8;
 			}
 
 			.tabee-spot-item-icon img {
@@ -474,7 +475,7 @@ export class SpotSearchUI {
 			}
 
 			.tabee-spot-item-title {
-				color: #f3f4f6;
+				color: #f1e9fa;
 				font-size: 14px;
 				font-weight: 500;
 				overflow: hidden;
@@ -483,7 +484,7 @@ export class SpotSearchUI {
 			}
 
 			.tabee-spot-item-url {
-				color: #9ca3af;
+				color: #a996b8;
 				font-size: 12px;
 				overflow: hidden;
 				text-overflow: ellipsis;

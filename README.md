@@ -21,6 +21,7 @@ Automate your browser tabs with rules.
 * Workspaces: move a group of tabs to its own window (Alt+Shift+M), perfect for demos
 * Sessions: save a window, all windows or one group, and restore them later
 * Own window: gather every tab a rule matches into one window
+* Amethyst theme (dark and light), the new default look
 
 Quick rename can be done by right-clicking anywhere in the page and click on "Rename Tab".
 

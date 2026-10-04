@@ -17,6 +17,58 @@ export default {
 			'valentine',
 			'halloween',
 			{
+				// Pastel purple and pink on a near-black amethyst ground, shared with Chatshot.
+				// Danger is a dusty rose rather than red.
+				amethyst: {
+					'color-scheme': 'dark',
+					primary: '#c2a0e2',
+					'primary-content': '#1c1526',
+					secondary: '#ff8fd0',
+					'secondary-content': '#1c1526',
+					accent: '#a784c6',
+					'accent-content': '#1c1526',
+					neutral: '#2e2340',
+					'neutral-content': '#f1e9fa',
+					'base-100': '#1c1526',
+					'base-200': '#241b30',
+					'base-300': '#160f1e',
+					'base-content': '#f1e9fa',
+					info: '#7dd6e8',
+					'info-content': '#1c1526',
+					success: '#a6d2a0',
+					'success-content': '#1c1526',
+					warning: '#e0b066',
+					'warning-content': '#1c1526',
+					error: '#e08bb0',
+					'error-content': '#1c1526',
+				},
+			},
+			{
+				'amethyst-light': {
+					'color-scheme': 'light',
+					primary: '#a784c6',
+					'primary-content': '#fffbff',
+					secondary: '#e0559e',
+					'secondary-content': '#fffbff',
+					accent: '#c2a0e2',
+					'accent-content': '#2e1a3d',
+					neutral: '#2e1a3d',
+					'neutral-content': '#f6f1fb',
+					'base-100': '#fffcff',
+					'base-200': '#f6f1fb',
+					'base-300': '#eadff4',
+					'base-content': '#2e1a3d',
+					info: '#4fa9c4',
+					'info-content': '#ffffff',
+					success: '#6fae6a',
+					'success-content': '#ffffff',
+					warning: '#cf9a45',
+					'warning-content': '#2e1a3d',
+					error: '#c1567f',
+					'error-content': '#ffffff',
+				},
+			},
+			{
 				tabee: {
 					primary: '#fbbf24', // Amber-400 - Jaune d'abeille
 					'primary-content': '#0a0a0a', // Texte foncé sur jaune

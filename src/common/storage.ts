@@ -22,7 +22,7 @@ export function _getDefaultTabModifierSettings(): TabModifierSettings {
 		groups: [],
 		settings: {
 			enable_new_version_notification: false,
-			theme: 'tabee',
+			theme: 'amethyst',
 			lightweight_mode_enabled: false,
 			lightweight_mode_patterns: [],
 			lightweight_mode_apply_to_rules: true,
