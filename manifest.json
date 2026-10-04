@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Automator",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Automate your tabs with rules: rename, group, pin, and sync.",
   "homepage_url": "https://github.com/mikesimone/tab-automator",
   "action": {
@@ -86,6 +86,15 @@
         "windows": "Alt+Shift+P"
       },
       "description": "Pause or resume all rules"
+    },
+    "move-to-new-window": {
+      "suggested_key": {
+        "default": "Alt+Shift+M",
+        "linux": "Alt+Shift+M",
+        "mac": "Alt+Shift+M",
+        "windows": "Alt+Shift+M"
+      },
+      "description": "Move this tab, or its whole group, to a new window"
     }
   }
 }

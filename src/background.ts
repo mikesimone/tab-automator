@@ -19,7 +19,10 @@ import {
 	AUTO_REFRESH_MENU_PRESET_PREFIX,
 	AUTO_REFRESH_MENU_RESUME,
 	ContextMenuService,
+	MOVE_TO_NEW_WINDOW_MENU,
 } from './background/ContextMenuService';
+import { WindowRoutingService } from './background/WindowRoutingService';
+import { _moveTabOrWorkspaceToNewWindow } from './common/workspaces';
 import { _openWhatsNewAfterUpdate } from './common/whatsNew';
 import { SpotSearchService } from './background/SpotSearchService';
 import { AutoRefreshService } from './background/AutoRefreshService';
@@ -32,6 +35,7 @@ const windowService = new WindowService();
 const contextMenuService = new ContextMenuService();
 const spotSearchService = new SpotSearchService();
 const autoRefreshService = new AutoRefreshService();
+const windowRoutingService = new WindowRoutingService();
 
 // =============================================================================
 // TAB EVENT LISTENERS
@@ -86,6 +90,9 @@ chrome.tabs.onUpdated.addListener(
 
 		const rule = await _getRuleFromUrl(urlToProcess);
 		const tabModifier = await _getStorageAsync();
+
+		// Move the tab into its rule's own window first, so grouping happens in the window it ends up in.
+		tab = await windowRoutingService.routeTab(rule, tab);
 
 		// Apply grouping logic FIRST to avoid race condition
 		// where ungroupTab removes the tab from group before content script re-applies it
@@ -339,6 +346,9 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
 		await chrome.tabs.sendMessage(tab.id, { action: 'openPrompt' });
 	} else if (info.menuItemId === 'merge-windows') {
 		await windowService.mergeAllWindows();
+	} else if (info.menuItemId === MOVE_TO_NEW_WINDOW_MENU) {
+		if (!tab) return;
+		await _moveTabOrWorkspaceToNewWindow(tab);
 	} else if (info.menuItemId === 'send-to-hive') {
 		if (!tab) return;
 		await tabHiveService.sendTabToHive(tab);
@@ -457,6 +467,12 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
 		await windowService.mergeAllWindows();
 	} else if (command === 'toggle-pause') {
 		await _setPaused(!(await _isPaused()));
+	} else if (command === 'move-to-new-window') {
+		const [active] = tab ? [tab] : await chrome.tabs.query({ active: true, currentWindow: true });
+
+		if (active) {
+			await _moveTabOrWorkspaceToNewWindow(active);
+		}
 	} else if (command === 'spot-search') {
 		console.log('[Tab Automator] 🔍 Spot search command triggered');
 		console.log('[Tab Automator] 🔍 Tab:', tab);

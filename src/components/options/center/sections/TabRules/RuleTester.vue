@@ -99,6 +99,7 @@ const describeEffects = (rule: Rule): string[] => {
 	if (tab.protected) effects.push('Protected from closing');
 	if (tab.unique) effects.push('Unique tab');
 	if (tab.auto_refresh?.enabled) effects.push('Auto-refresh');
+	if (tab.dedicated_window) effects.push('Own window');
 
 	const group = rulesStore.groups.find((candidate) => candidate.id === tab.group_id);
 	if (group) effects.push(`Group: ${group.title.split('​').join('')}`);

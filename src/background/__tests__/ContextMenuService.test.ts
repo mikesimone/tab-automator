@@ -23,9 +23,9 @@ describe('ContextMenuService', () => {
 		it('should create all context menus', () => {
 			service.initialize();
 
-			// 3 main menus + 3 reject list menus (1 parent + 2 children)
+			// 4 main menus + 3 reject list menus (1 parent + 2 children)
 			// + 9 auto-refresh menus (parent, 5 intervals, separator, pause, resume)
-			expect(mockChrome.contextMenus.create).toHaveBeenCalledTimes(15);
+			expect(mockChrome.contextMenus.create).toHaveBeenCalledTimes(16);
 
 			// Check rename tab menu
 			expect(mockChrome.contextMenus.create).toHaveBeenCalledWith({
@@ -38,6 +38,13 @@ describe('ContextMenuService', () => {
 			expect(mockChrome.contextMenus.create).toHaveBeenCalledWith({
 				id: 'merge-windows',
 				title: '🪟 Merge All Windows',
+				contexts: ['all'],
+			});
+
+			// Check move to new window menu
+			expect(mockChrome.contextMenus.create).toHaveBeenCalledWith({
+				id: 'move-to-new-window',
+				title: '🪟 Move tab or group to new window',
 				contexts: ['all'],
 			});
 
@@ -77,10 +84,11 @@ describe('ContextMenuService', () => {
 
 			expect(calls[0][0].id).toBe('rename-tab');
 			expect(calls[1][0].id).toBe('merge-windows');
-			expect(calls[2][0].id).toBe('send-to-hive');
-			expect(calls[3][0].id).toBe('tab-hive-reject-parent');
-			expect(calls[4][0].id).toBe('tab-hive-reject-domain');
-			expect(calls[5][0].id).toBe('tab-hive-reject-url');
+			expect(calls[2][0].id).toBe('move-to-new-window');
+			expect(calls[3][0].id).toBe('send-to-hive');
+			expect(calls[4][0].id).toBe('tab-hive-reject-parent');
+			expect(calls[5][0].id).toBe('tab-hive-reject-domain');
+			expect(calls[6][0].id).toBe('tab-hive-reject-url');
 		});
 
 		it('should set all menus to "all" contexts', () => {
@@ -100,7 +108,8 @@ describe('ContextMenuService', () => {
 
 			expect(calls[0][0].title).toContain('✏️');
 			expect(calls[1][0].title).toContain('🪟');
-			expect(calls[2][0].title).toContain('🍯');
+			expect(calls[2][0].title).toContain('🪟');
+			expect(calls[3][0].title).toContain('🍯');
 		});
 	});
 });

@@ -52,6 +52,12 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 - Reduce memory usage on resource-heavy sites
 - Disable listeners selectively
 
+🪟 Workspaces, Sessions & Windows
+- Presenting or demoing? Move a group of tabs to its own window so your audience sees only those tabs (Alt+Shift+M)
+- Move a group to any window you already have open
+- Save windows, groups or everything as named sessions, and restore them later with pinned tabs and groups intact
+- "Own window" rule option: every tab a rule matches gathers in one window
+
 🧪 Rule Tools
 - Test a URL to see exactly which rule applies, and which rules never get a chance
 - Pause all rules with one switch or Alt+Shift+P

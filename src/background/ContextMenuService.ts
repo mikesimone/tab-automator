@@ -4,6 +4,7 @@ export const AUTO_REFRESH_MENU_PARENT = 'auto-refresh-parent';
 export const AUTO_REFRESH_MENU_PRESET_PREFIX = 'auto-refresh-every-';
 export const AUTO_REFRESH_MENU_PAUSE = 'auto-refresh-pause';
 export const AUTO_REFRESH_MENU_RESUME = 'auto-refresh-resume';
+export const MOVE_TO_NEW_WINDOW_MENU = 'move-to-new-window';
 
 /**
  * Service responsible for managing context menus
@@ -16,6 +17,7 @@ export class ContextMenuService {
 	initialize(): void {
 		this.createRenameTabMenu();
 		this.createMergeWindowsMenu();
+		this.createMoveToNewWindowMenu();
 		this.createSendToHiveMenu();
 		this.createTabHiveRejectMenus();
 		this.createAutoRefreshMenus();
@@ -80,6 +82,17 @@ export class ContextMenuService {
 		chrome.contextMenus.create({
 			id: 'merge-windows',
 			title: '🪟 Merge All Windows',
+			contexts: ['all'],
+		});
+	}
+
+	/**
+	 * Create the "Move to new window" context menu: the tab's whole group, or just the tab
+	 */
+	private createMoveToNewWindowMenu(): void {
+		chrome.contextMenus.create({
+			id: MOVE_TO_NEW_WINDOW_MENU,
+			title: '🪟 Move tab or group to new window',
 			contexts: ['all'],
 		});
 	}

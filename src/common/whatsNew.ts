@@ -6,6 +6,34 @@ export type ReleaseNote = {
 // Newest first. Add an entry here for every release that users should hear about.
 export const RELEASES: ReleaseNote[] = [
 	{
+		version: '1.5.0',
+		features: [
+			{
+				emoji: '🪟',
+				title: 'Workspaces: move a group of tabs to its own window',
+				description:
+					"Presenting or doing a demo? Put the tabs you want to show in a tab group, then open Workspaces and choose New window. Your audience sees only those tabs, and all your other tabs stay in your original window, out of sight. You can also move a group to any window you already have open. No clicking around: press Alt+Shift+M on any tab to move its whole group (or just that tab, if it isn't in a group) to a new window.",
+			},
+			{
+				emoji: '💾',
+				title: 'Sessions',
+				description:
+					'Save a window, all your windows, or a single workspace under a name, then bring it back later in a new window or the one you are in. Pinned tabs, groups and their colours come back too. Find it under Sessions.',
+			},
+			{
+				emoji: '🏠',
+				title: 'Own window for a rule',
+				description:
+					'Switch on Own window in a rule and every tab it matches is gathered into one window of its own, so your dashboards, docs or a client project always live together.',
+			},
+			{
+				emoji: '↗️',
+				title: 'Move to new window from the right-click menu',
+				description: 'Right-click any page and choose Move tab or group to new window.',
+			},
+		],
+	},
+	{
 		version: '1.4.0',
 		features: [
 			{

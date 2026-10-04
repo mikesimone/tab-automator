@@ -31,6 +31,8 @@ export type Tab = {
 	url_matcher: string | null;
 	// Optional so rules exported before auto-refresh existed still import; missing means off.
 	auto_refresh?: AutoRefresh | null;
+	// Optional so older rules still import; missing means off. Matching tabs gather in one window.
+	dedicated_window?: boolean;
 };
 
 export type Rule = {
