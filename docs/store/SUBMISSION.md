@@ -16,7 +16,7 @@ Everything below is ready to paste. Store images are in `docs/store/`; the zip c
 - **Category:** Productivity → Tools (or Workflow & Planning)
 - **Language:** English
 - **Store icon:** `icon_128.png`
-- **Screenshots:** `store_1_rules.png`, `store_2_backup_sync.png` (both 1280×800), plus the 1.5.0 set `store_3_workspaces.png` … `store_7_share_rules.png` (1280×800, 24-bit PNG). The store takes five, so pick your favourites. `violet/` has the same five in the Dark theme (purple accent, matches the icon); the files in this folder use the Dim theme like the first two.
+- **Screenshots:** `store_1_rules.png` … `store_7_share_rules.png` (all 1280×800, 24-bit PNG, Amethyst theme). The store takes five, so pick your favourites; `store_3_workspaces.png`, `store_4_sessions.png` and `store_5_url_tester_and_pause.png` show the newest features.
 - **Small promo tile:** `store_promo_tile_440x280.png`
 - **Homepage URL:** https://github.com/mikesimone/tab-automator
 - **Support URL:** https://github.com/mikesimone/tab-automator/issues

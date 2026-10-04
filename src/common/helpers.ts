@@ -57,6 +57,8 @@ export function _isDefined(...args: any[]) {
 
 export function _getThemes() {
 	return [
+		{ label: 'Amethyst 💜', value: 'amethyst' },
+		{ label: 'Amethyst Light', value: 'amethyst-light' },
 		{ label: 'Honey 🐝', value: 'tabee' },
 		{ label: 'Dim', value: 'dim' },
 		{ label: 'Dark', value: 'dark' },

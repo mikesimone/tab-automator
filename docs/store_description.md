@@ -58,6 +58,9 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 - Save windows, groups or everything as named sessions, and restore them later with pinned tabs and groups intact
 - "Own window" rule option: every tab a rule matches gathers in one window
 
+🎨 Themes
+- New Amethyst theme (dark and light): pastel purple and pink, no harsh reds
+
 🧪 Rule Tools
 - Test a URL to see exactly which rule applies, and which rules never get a chance
 - Pause all rules with one switch or Alt+Shift+P

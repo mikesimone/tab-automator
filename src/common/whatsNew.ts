@@ -27,6 +27,12 @@ export const RELEASES: ReleaseNote[] = [
 					'Switch on Own window in a rule and every tab it matches is gathered into one window of its own, so your dashboards, docs or a client project always live together.',
 			},
 			{
+				emoji: '💜',
+				title: 'Amethyst theme',
+				description:
+					'A new default look: pastel purple and pink on a deep amethyst background, with a dusty rose instead of red for warnings. There is a light version too. If you are already using another theme it stays as it is; switch in Settings → Theme.',
+			},
+			{
 				emoji: '↗️',
 				title: 'Move to new window from the right-click menu',
 				description: 'Right-click any page and choose Move tab or group to new window.',
