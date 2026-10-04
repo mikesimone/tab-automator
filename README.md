@@ -15,6 +15,9 @@ Automate your browser tabs with rules.
 * Mute tab
 * Auto-backup your configuration to Downloads on every change
 * Sync your configuration across devices via your browser account
+* Test a URL to see which rule applies, with warnings for rules that can never apply
+* Pause all rules at once (Alt+Shift+P)
+* Share rules as a file, and import rules other people share
 
 Quick rename can be done by right-clicking anywhere in the page and click on "Rename Tab".
 
@@ -23,9 +26,12 @@ Quick rename can be done by right-clicking anywhere in the page and click on "Re
 In Options > Settings:
 
 * **Auto-Backup on Every Change** - writes a copy of your full configuration to
-  `Downloads/tab-automator.auto-backup.json` every time you add, edit, or remove
+  `Downloads/tab_automator_config_{datetime}.json` every time you add, edit, or remove
   something, so a browser reset or a bad import never costs you your rules.
-  The file is overwritten in place (no growing pile of numbered copies).
+  One file is kept per day (named with the date and time of that day's first
+  backup) and overwritten as you keep making changes, and files older than 7
+  days are deleted, so Downloads never fills up. The manual **Export** in
+  Settings uses the same naming.
 * **Sync Across Devices** - mirrors your configuration through your browser's
   built-in account sync (`chrome.storage.sync`), so it shows up automatically
   on your other devices signed into the same account. Very large
@@ -34,6 +40,24 @@ In Options > Settings:
   than failing silently.
 
 Both are off by default and can be toggled independently.
+
+### Rules page tools
+
+* **Test a URL** - paste an address to see which rule would apply to it and what
+  it would do. Rules are checked top to bottom and the first enabled match wins;
+  later matches are shown as never reached. Rules that an earlier rule always
+  catches (for plain-text detection types) are marked with a warning in the
+  table.
+* **Pause all rules** - a switch on the Rules page, or Alt+Shift+P (Command+Shift+P
+  on Mac). While paused no rule renames, groups, pins, mutes, protects, closes
+  duplicates of or auto-refreshes a tab, and the toolbar icon shows a pause mark.
+  Tabs you already changed keep their look until they reload. It is stored on the
+  device only, so it is never synced or included in backups.
+* **Export rules / Import rules** - pick rules to save as a shareable
+  `tab_automator_rules_*.json` file, which carries the groups those rules use.
+  Importing shows what is in the file first and adds the rules after your
+  existing ones, so shared rules never override your own. Only import files you
+  trust.
 
 ## Installation
 

@@ -4,6 +4,7 @@ import { decompressFromUTF16 } from 'lz-string';
 
 const STORAGE_KEY = 'tab_modifier';
 const STORAGE_KEY_COMPRESSED = 'tab_modifier_compressed';
+const PAUSE_STORAGE_KEY = 'tab_automator_paused';
 
 /**
  * Service responsible for storage operations and rule matching
@@ -62,11 +63,30 @@ export class StorageService {
 	}
 
 	/**
+	 * True while the user has paused all rules on this device
+	 */
+	private async isPaused(): Promise<boolean> {
+		return new Promise((resolve) => {
+			try {
+				chrome.storage.local.get([PAUSE_STORAGE_KEY], (items) => {
+					resolve(!chrome.runtime.lastError && items?.[PAUSE_STORAGE_KEY] === true);
+				});
+			} catch {
+				resolve(false);
+			}
+		});
+	}
+
+	/**
 	 * Finds a rule matching the given URL
 	 * @param url - The URL to match against rules
 	 * @returns The matching rule or undefined
 	 */
 	async getRuleFromUrl(url: string): Promise<Rule | undefined> {
+		if (await this.isPaused()) {
+			return;
+		}
+
 		const tabModifier = await this.getStorageAsync();
 		if (!tabModifier) {
 			return;

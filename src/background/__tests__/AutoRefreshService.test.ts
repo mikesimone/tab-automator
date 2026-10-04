@@ -24,6 +24,12 @@ const mockChrome = {
 		setBadgeBackgroundColor: vi.fn(),
 	},
 	storage: {
+		local: {
+			paused: false,
+			get: vi.fn(async (key: string) => ({
+				[key]: key === 'tab_automator_paused' ? mockChrome.storage.local.paused : undefined,
+			})),
+		},
 		session: {
 			data: {} as Record<string, unknown>,
 			get: vi.fn(async (key: string) => ({ [key]: mockChrome.storage.session.data[key] })),
@@ -63,6 +69,29 @@ describe('AutoRefreshService', () => {
 		mockChrome.tabs.sendMessage.mockResolvedValue({ editing: false });
 		mockChrome.windows.get.mockResolvedValue({ focused: false });
 		mockChrome.storage.session.data = {};
+		mockChrome.storage.local.paused = false;
+	});
+
+	it('does not schedule rule-based refreshes while all rules are paused', async () => {
+		const config = makeConfig({ interval_seconds: 120 });
+		const service = new AutoRefreshService(async () => config);
+		mockChrome.storage.local.paused = true;
+
+		await service.onTabUpdated(dashboardTab, { status: 'complete' });
+
+		expect(mockChrome.alarms.create).not.toHaveBeenCalled();
+		expect(mockChrome.alarms.clear).toHaveBeenCalledWith('tab-automator-auto-refresh:7');
+	});
+
+	it('does not reload a tab when its alarm fires while all rules are paused', async () => {
+		const config = makeConfig({});
+		const service = new AutoRefreshService(async () => config);
+		mockChrome.tabs.get.mockResolvedValue(dashboardTab);
+		mockChrome.storage.local.paused = true;
+
+		await service.handleAlarm({ name: 'tab-automator-auto-refresh:7' } as chrome.alarms.Alarm);
+
+		expect(mockChrome.tabs.reload).not.toHaveBeenCalled();
 	});
 
 	it('schedules an alarm when a matching page finishes loading', async () => {

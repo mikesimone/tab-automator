@@ -9,6 +9,7 @@ import {
 	STORAGE_KEY_METADATA,
 } from './common/storage';
 import { _pullFromSyncIfNewer } from './common/syncStorage';
+import { _applyPausedBadge, _isPaused, _setPaused, PAUSE_STORAGE_KEY } from './common/pause';
 import { TabRulesService } from './background/TabRulesService';
 import { TabGroupsService } from './background/TabGroupsService';
 import { TabHiveService } from './background/TabHiveService';
@@ -370,6 +371,14 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
 chrome.storage.onChanged.addListener((changes, areaName) => {
 	if (areaName !== 'sync' && areaName !== 'local') return;
 
+	// Pausing or resuming all rules: update the toolbar badge and stop/restart auto-refresh.
+	if (areaName === 'local' && changes[PAUSE_STORAGE_KEY]) {
+		void _applyPausedBadge(changes[PAUSE_STORAGE_KEY].newValue === true);
+		void autoRefreshService.syncAllTabs().catch((error) => {
+			console.log('[Tab Automator] Error syncing auto-refresh alarms:', error);
+		});
+	}
+
 	// Rules are saved compressed in local storage; re-check which tabs auto-refresh.
 	if (areaName === 'local' && (changes.tab_modifier_compressed || changes.tab_modifier)) {
 		void autoRefreshService.syncAllTabs().catch((error) => {
@@ -446,6 +455,8 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
 
 	if (command === 'merge-windows') {
 		await windowService.mergeAllWindows();
+	} else if (command === 'toggle-pause') {
+		await _setPaused(!(await _isPaused()));
 	} else if (command === 'spot-search') {
 		console.log('[Tab Automator] 🔍 Spot search command triggered');
 		console.log('[Tab Automator] 🔍 Tab:', tab);
@@ -524,6 +535,9 @@ console.log('[Tab Automator] 🔍 Spot search command handler registered');
 
 // Export for use in other modules
 export { tabHiveService };
+
+// The badge doesn't survive a browser restart, so restore it whenever the worker starts.
+void _isPaused().then(_applyPausedBadge);
 
 // Show the What's new page once after an update that has release notes
 chrome.runtime.onInstalled.addListener((details) => {

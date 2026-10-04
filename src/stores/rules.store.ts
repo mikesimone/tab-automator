@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Group, Rule, Settings, TabModifierSettings } from '../common/types.ts';
 import { _clone, _generateRandomId, _isRuleEnabled } from '../common/helpers.ts';
+import { _buildRulePack, _prepareRulePackImport, RulePack } from '../common/rulePack.ts';
 import {
 	_clearStorage,
 	_getDefaultTabModifierSettings,
@@ -450,6 +451,35 @@ export const useRulesStore = defineStore('rules', {
 				}
 				throw error;
 			}
+		},
+		buildRulePack(ruleIds: string[], name?: string): RulePack {
+			const wanted = new Set(ruleIds);
+
+			return _buildRulePack(
+				this.rules.filter((rule) => wanted.has(rule.id)),
+				this.groups,
+				name
+			);
+		},
+		/**
+		 * Adds shared rules after the existing ones, so they never silently take priority over
+		 * rules the user already relies on.
+		 */
+		async addImportedRules(parsed: { rules: Rule[]; groups: Group[] }) {
+			const tabModifier = (await _getStorageAsync()) ?? _getDefaultTabModifierSettings();
+			const prepared = _prepareRulePackImport(parsed, tabModifier.groups);
+
+			tabModifier.rules.push(...prepared.rules);
+			tabModifier.groups.push(...prepared.groups);
+
+			await _setStorage(tabModifier);
+			await this.init();
+
+			return {
+				rules: prepared.rules.length,
+				groups: prepared.groups.length,
+				skipped: prepared.skipped,
+			};
 		},
 		async moveUp(ruleId: string): Promise<Rule> {
 			const index = this.getRuleIndexById(ruleId);

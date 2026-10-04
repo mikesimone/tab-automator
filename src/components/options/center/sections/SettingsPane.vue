@@ -235,9 +235,10 @@
 						<h3 class="font-bold">Auto-Backup on Every Change</h3>
 						<p>
 							Automatically save a copy of your configuration to your Downloads folder (<code>{{
-								AUTO_BACKUP_FILENAME
+								BACKUP_FILENAME_PATTERN
 							}}</code
-							>) every time you make a change, so you always have a recent copy to restore from.
+							>) every time you make a change, so you always have a recent copy to restore from. One
+							file is kept per day and the last {{ AUTO_BACKUP_KEEP_FILES }} days are kept.
 						</p>
 					</div>
 					<div class="col-span-1 flex justify-end">
@@ -368,7 +369,12 @@ import { inject, ref, watch } from 'vue';
 import { useRulesStore } from '../../../../stores/rules.store.ts';
 import { GLOBAL_EVENTS, LightweightModePattern } from '../../../../common/types.ts';
 import { _getThemes, _generateRandomId } from '../../../../common/helpers.ts';
-import { AUTO_BACKUP_FILENAME } from '../../../../common/autoBackup.ts';
+import {
+	_backupFilename,
+	AUTO_BACKUP_KEEP_FILES,
+	BACKUP_FILENAME_PATTERN,
+} from '../../../../common/autoBackup.ts';
+import { _downloadTextFile } from '../../../../common/download.ts';
 import { _pullFromSyncIfNewer } from '../../../../common/syncStorage.ts';
 
 const emitter: any = inject('emitter');
@@ -477,7 +483,7 @@ watch(autoBackupEnabled, async (enabled) => {
 	emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
 		type: 'success',
 		message: enabled
-			? `Auto-Backup enabled! A copy will be saved to Downloads/${AUTO_BACKUP_FILENAME} on every change.`
+			? `Auto-Backup enabled! A copy will be saved to Downloads/${BACKUP_FILENAME_PATTERN} on every change.`
 			: 'Auto-Backup disabled.',
 	});
 });
@@ -687,17 +693,7 @@ const exportConfig = async () => {
 		return;
 	}
 
-	const blob = new Blob([JSON.stringify(config, null, 4)], { type: 'text/plain' });
-	const url = (window.URL || window.webkitURL).createObjectURL(blob);
-	const a = document.createElement('a');
-
-	a.href = url;
-	a.download = 'tab-automator.config.json';
-	document.body.appendChild(a);
-	a.click();
-
-	document.body.removeChild(a);
-	window.URL.revokeObjectURL(url);
+	_downloadTextFile(_backupFilename(), JSON.stringify(config, null, 4));
 
 	emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
 		type: 'success',
