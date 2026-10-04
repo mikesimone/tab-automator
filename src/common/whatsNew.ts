@@ -6,6 +6,35 @@ export type ReleaseNote = {
 // Newest first. Add an entry here for every release that users should hear about.
 export const RELEASES: ReleaseNote[] = [
 	{
+		version: '1.4.0',
+		features: [
+			{
+				emoji: '🧪',
+				title: 'Test a URL',
+				description:
+					'On the Rules page, open Test a URL and paste an address to see which rule would apply and what it would do. Rules that can never apply, because an earlier rule already catches the same URLs, now show a warning.',
+			},
+			{
+				emoji: '⏸',
+				title: 'Pause all rules',
+				description:
+					'Turn off every rule at once with the Pause all rules switch on the Rules page, or press Alt+Shift+P. The toolbar icon shows ⏸ while paused. It only affects this computer.',
+			},
+			{
+				emoji: '📦',
+				title: 'Share rules',
+				description:
+					'Export rules turns the ones you pick into a file you can send to someone, and Import rules adds a shared file to your list after showing what is inside. Imported rules go after your own, so they never take priority over them.',
+			},
+			{
+				emoji: '🗂️',
+				title: 'Dated backup files',
+				description:
+					'Backups and exports are now named tab_automator_config_{datetime}.json. Auto-backup keeps one file per day, overwrites it as you make changes, and deletes files older than 7 days.',
+			},
+		],
+	},
+	{
 		version: '1.3.0',
 		features: [
 			{

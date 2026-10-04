@@ -52,8 +52,13 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 - Reduce memory usage on resource-heavy sites
 - Disable listeners selectively
 
+🧪 Rule Tools
+- Test a URL to see exactly which rule applies, and which rules never get a chance
+- Pause all rules with one switch or Alt+Shift+P
+- Export rules to a file to share, and import rules other people share (you review them first)
+
 ♻️ Backup & Sync Across Devices
-- Optional auto-backup of your full configuration to Downloads on every change
+- Optional auto-backup of your full configuration to Downloads on every change (one dated file per day, last 7 days kept)
 - Optional rule synchronization via your browser account (Chrome Sync)
 - Consistent experience on all your devices
 

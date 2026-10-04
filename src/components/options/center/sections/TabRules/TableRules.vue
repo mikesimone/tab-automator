@@ -43,6 +43,16 @@
 						<td scope="row">
 							{{ rule.name }}
 							<span
+								v-if="shadowedBy.get(rule.id)"
+								class="tooltip tooltip-right ml-1"
+								:data-tip="
+									'Never applies: \'' +
+									shadowedBy.get(rule.id)?.name +
+									'\' above already catches these URLs'
+								"
+								>⚠️</span
+							>
+							<span
 								v-if="rule.tab.auto_refresh?.enabled"
 								class="tooltip tooltip-right ml-1"
 								:data-tip="'Auto-refreshes every ' + _formatAutoRefreshInterval(rule)"
@@ -124,6 +134,7 @@ import RefreshButton from '../../../../global/RefreshButton.vue';
 import { _chromeGroupColor, _shortify } from '../../../../../common/helpers.ts';
 import ColorVisualizer from '../TabGroups/ColorVisualizer.vue';
 import draggable from 'vuedraggable';
+import { _findShadowedRules } from '../../../../../common/ruleMatching.ts';
 import { FEATURE_FLAGS } from '../../../../../common/feature-flags.ts';
 import {
 	_clampAutoRefreshInterval,
@@ -152,6 +163,8 @@ watch(
 		rules.value = [...newRules];
 	}
 );
+
+const shadowedBy = computed(() => _findShadowedRules(rulesStore.rules));
 
 const groupsById = computed(() => {
 	return props.groups.reduce(

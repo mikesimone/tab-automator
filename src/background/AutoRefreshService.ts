@@ -1,4 +1,5 @@
 import { _findRuleForUrl, _getStorageAsync, _isUrlSkippedBySettings } from '../common/storage';
+import { _isPaused } from '../common/pause';
 import {
 	AUTO_REFRESH_ALARM_PREFIX,
 	AUTO_REFRESH_RETRY_SECONDS,
@@ -48,7 +49,7 @@ export class AutoRefreshService {
 			await this.setOverride(tab.id, override);
 		}
 
-		const settings = this.resolve(await this.loadConfig(), override, tab.url);
+		const settings = await this.resolve(await this.loadConfig(), override, tab.url);
 
 		if (!settings) {
 			await this.stop(tab.id, !!override?.paused);
@@ -91,7 +92,7 @@ export class AutoRefreshService {
 		delete override.paused;
 		await this.setOverride(tab.id, override);
 
-		const settings = this.resolve(await this.loadConfig(), override, tab.url);
+		const settings = await this.resolve(await this.loadConfig(), override, tab.url);
 		if (settings) {
 			await this.start(tab.id, settings.interval_seconds);
 		} else {
@@ -134,7 +135,7 @@ export class AutoRefreshService {
 			if (tab.id === undefined || !tab.url) continue;
 			openTabIds.add(tab.id);
 
-			const settings = this.resolve(config, overrides[tab.id], tab.url);
+			const settings = await this.resolve(config, overrides[tab.id], tab.url);
 			if (!settings) continue;
 
 			wanted.add(tab.id);
@@ -180,7 +181,7 @@ export class AutoRefreshService {
 
 		// Re-check: the rule or the menu choice may have changed since scheduling.
 		const overrides = await this.getOverrides();
-		const settings = this.resolve(await this.loadConfig(), overrides[tabId], tab.url);
+		const settings = await this.resolve(await this.loadConfig(), overrides[tabId], tab.url);
 		if (!settings) return;
 
 		const blocker = await this.getBlocker(tab, settings);
@@ -196,14 +197,16 @@ export class AutoRefreshService {
 		await chrome.tabs.reload(tabId, { bypassCache: settings.bypass_cache });
 	}
 
-	private resolve(
+	private async resolve(
 		config: TabModifierSettings | undefined,
 		override: AutoRefreshTabOverride | undefined,
 		url: string
-	): AutoRefresh | null {
+	): Promise<AutoRefresh | null> {
 		if (config?.settings && _isUrlSkippedBySettings(config.settings, url)) return null;
 
-		const rule = config?.rules ? _findRuleForUrl(config.rules, url) : undefined;
+		// Pausing silences rules only; a refresh the user started from the menu keeps running.
+		const rule =
+			config?.rules && !(await _isPaused()) ? _findRuleForUrl(config.rules, url) : undefined;
 
 		return _resolveTabAutoRefresh(rule, override, url);
 	}

@@ -1,6 +1,8 @@
 import { Group, Rule, Settings, TabModifierSettings } from './types.ts';
 import { _clone, _generateRandomId } from './helpers.ts';
 import { _safeRegexTestSync } from './regex-safety.ts';
+import { _ruleMatchesUrl } from './ruleMatching.ts';
+import { _isPaused } from './pause.ts';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { debugLog } from './debugLog.ts';
 import { _autoBackupConfig } from './autoBackup.ts';
@@ -328,6 +330,10 @@ export async function _setStorage(tabModifier: TabModifierSettings): Promise<voi
 }
 
 export async function _getRuleFromUrl(url: string): Promise<Rule | undefined> {
+	if (await _isPaused()) {
+		return;
+	}
+
 	const tabModifier = await _getStorageAsync();
 	if (!tabModifier) {
 		return;
@@ -337,35 +343,7 @@ export async function _getRuleFromUrl(url: string): Promise<Rule | undefined> {
 }
 
 export function _findRuleForUrl(rules: Rule[], url: string): Rule | undefined {
-	return rules.find((r) => {
-		// Skip disabled rules
-		if (r.is_enabled === false) {
-			return false;
-		}
-
-		const detectionType = r.detection ?? 'CONTAINS';
-		const urlFragment = r.url_fragment;
-
-		switch (detectionType) {
-			case 'CONTAINS':
-				return url.includes(urlFragment);
-			case 'STARTS':
-			case 'STARTS_WITH':
-				return url.startsWith(urlFragment);
-			case 'ENDS':
-			case 'ENDS_WITH':
-				return url.endsWith(urlFragment);
-			case 'REGEX':
-			case 'REGEXP':
-				// nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-				// Safe: Pattern is validated by _safeRegexTestSync() which checks for ReDoS patterns
-				return _safeRegexTestSync(urlFragment, url);
-			case 'EXACT':
-				return url === urlFragment;
-			default:
-				return false;
-		}
-	});
+	return rules.find((r) => r.is_enabled !== false && _ruleMatchesUrl(r, url));
 }
 
 // Old migration functions removed - no longer needed with local-only storage
