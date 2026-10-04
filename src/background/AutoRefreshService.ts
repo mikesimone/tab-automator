@@ -229,7 +229,9 @@ export class AutoRefreshService {
 
 	private async setBadge(tabId: number, text: string): Promise<void> {
 		try {
-			await chrome.action.setBadgeText({ tabId, text });
+			// An empty string would pin a blank badge to this tab and hide the global "all rules paused"
+			// mark. null clears the tab's own text so the global one shows through again.
+			await chrome.action.setBadgeText({ tabId, text: text || (null as unknown as string) });
 			if (text) {
 				await chrome.action.setBadgeBackgroundColor({ tabId, color: '#7c3aed' });
 			}
