@@ -65,14 +65,14 @@ ITEM="publishers/${CWS_PUBLISHER_ID}/items/${ITEM_ID}"
 
 case "$ACTION" in
 	status)
-		curl -fsS "${AUTH[@]}" "${API}/v2/${ITEM}:fetchStatus"
+		curl -sS --fail-with-body "${AUTH[@]}" "${API}/v2/${ITEM}:fetchStatus"
 		;;
 	upload)
 		[ -f "$ZIP" ] || { echo "No such package: $ZIP" >&2; exit 1; }
-		curl -fsS "${AUTH[@]}" -X POST -T "$ZIP" "${API}/upload/v2/${ITEM}:upload"
+		curl -sS --fail-with-body "${AUTH[@]}" -X POST -T "$ZIP" "${API}/upload/v2/${ITEM}:upload"
 		;;
 	publish)
-		curl -fsS "${AUTH[@]}" -X POST "${API}/v2/${ITEM}:publish"
+		curl -sS --fail-with-body "${AUTH[@]}" -X POST "${API}/v2/${ITEM}:publish"
 		;;
 	*)
 		echo "Usage: $0 [status|upload [zip]|publish]" >&2
