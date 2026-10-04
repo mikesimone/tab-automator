@@ -18,6 +18,9 @@ Automate your browser tabs with rules.
 * Test a URL to see which rule applies, with warnings for rules that can never apply
 * Pause all rules at once (Alt+Shift+P)
 * Share rules as a file, and import rules other people share
+* Workspaces: move a group of tabs to its own window (Alt+Shift+M), perfect for demos
+* Sessions: save a window, all windows or one group, and restore them later
+* Own window: gather every tab a rule matches into one window
 
 Quick rename can be done by right-clicking anywhere in the page and click on "Rename Tab".
 
@@ -58,6 +61,23 @@ Both are off by default and can be toggled independently.
   Importing shows what is in the file first and adds the rules after your
   existing ones, so shared rules never override your own. Only import files you
   trust.
+
+### Workspaces, sessions and windows
+
+* **Workspaces** - every open tab group is a workspace. On the Workspaces page you can move
+  a group to a new window, move it to a window you already have open, save it as a session, or
+  close its tabs. **Presenting or demoing?** Put the tabs you want to show in a group and move it
+  to a new window: your audience sees only those tabs while your other tabs stay in your original
+  window. Alt+Shift+M does the same for the current tab's group (or just the tab, if it isn't in
+  a group), and so does **Move tab or group to new window** in the right-click menu.
+* **Sessions** - save the current window, all windows, or a single workspace under a name, then
+  restore it in a new window or the one you are in. Pinned tabs, groups and group colours come
+  back too. Only web pages (http and https) are saved. Sessions stay on this computer and are not
+  synced or included in backups.
+* **Own window** - a toggle in a rule. Every tab the rule matches is gathered into one window of
+  its own, created the first time a match loads (a matching tab that is alone in its window simply
+  claims that window). Pinned tabs are left where they are. If you close that window, the next
+  match starts a new one.
 
 ## Installation
 

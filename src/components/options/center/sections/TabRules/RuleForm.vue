@@ -219,6 +219,24 @@
 					/>
 				</label>
 			</div>
+			<div class="form-control max-w-xs">
+				<label class="cursor-pointer label">
+					<span class="label-text text-xs">Own window <NewFeature /></span>
+					<input
+						v-model="currentRule.tab.dedicated_window"
+						:disabled="!!currentRule.tab.pinned"
+						class="toggle toggle-sm toggle-primary"
+						type="checkbox"
+					/>
+				</label>
+			</div>
+			<p
+				v-if="showHelp && currentRule.tab.dedicated_window"
+				class="col-span-2 text-xs opacity-80 label-text-alt px-1"
+			>
+				Tabs matching this rule are gathered into one window of their own, created the first time a
+				match loads. Pinned tabs stay where they are.
+			</p>
 		</div>
 
 		<div class="mt-6 bg-base-200 rounded-md px-3 py-2">

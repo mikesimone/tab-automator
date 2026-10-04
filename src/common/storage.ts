@@ -54,6 +54,7 @@ export function _getDefaultRule(name: string, title: string, urlFragment: string
 			title_matcher: null,
 			url_matcher: null,
 			group_id: null,
+			dedicated_window: false,
 		},
 	};
 }

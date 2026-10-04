@@ -121,6 +121,8 @@ import { computed, inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 import TabRulesPane from './components/options/center/sections/TabRulesPane.vue';
 import TabGroupsPane from './components/options/center/sections/TabGroupsPane.vue';
 import TabHivePane from './components/options/center/sections/TabHivePane.vue';
+import WorkspacesPane from './components/options/center/sections/WorkspacesPane.vue';
+import SessionsPane from './components/options/center/sections/SessionsPane.vue';
 import SettingsPane from './components/options/center/sections/SettingsPane.vue';
 import HelpPane from './components/options/center/sections/HelpPane.vue';
 import WhatsNewPane from './components/options/center/sections/WhatsNewPane.vue';
@@ -139,6 +141,8 @@ const emitter: any = inject('emitter');
 const panes: Components = {
 	TabRulesPane,
 	TabGroupsPane,
+	WorkspacesPane,
+	SessionsPane,
 	TabHivePane,
 	SettingsPane,
 	HelpPane,
@@ -157,6 +161,18 @@ const sectionItems = reactive([
 		emoji: '🗂️',
 		description: 'Organize your tabs with custom groups',
 		component: 'TabGroupsPane',
+	},
+	{
+		title: 'Workspaces',
+		emoji: '🪟',
+		description: 'Move groups of tabs to their own window',
+		component: 'WorkspacesPane',
+	},
+	{
+		title: 'Sessions',
+		emoji: '💾',
+		description: 'Save and restore sets of tabs',
+		component: 'SessionsPane',
 	},
 	{
 		title: 'Tab Hive',
