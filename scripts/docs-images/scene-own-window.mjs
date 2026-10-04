@@ -1,0 +1,23 @@
+import { launch, SITES, config, RULES, seed, openAll, closeBlankTabs, reloadAll, windows, place, show, dumpTabs } from './scenes.mjs';
+import { shot, sleep } from './lib.mjs';
+
+const only = RULES.filter((r) => r.id === 'r-github').map((r) => ({ ...r, tab: { ...r.tab, group_id: null, dedicated_window: true } }));
+const { ctx, sw } = await launch({ width: 1280, height: 800, scale: 1 });
+await openAll(ctx, [SITES.github, SITES.google, SITES.issues, SITES.bbc, SITES.pulls, SITES.docs, SITES.wiki, SITES.youtube], 10000);
+await closeBlankTabs(sw);
+await seed(sw, config({ rules: only }));
+await reloadAll(sw);
+await sleep(16000);
+await closeBlankTabs(sw);
+const wins = await windows(sw);
+console.log(JSON.stringify(wins.map((w) => ({ id: w.id, n: w.tabs.length, tabs: w.tabs.map((t) => t.slice(8, 30)) }))));
+const gh = wins.find((w) => w.tabs.length && w.tabs.every((t) => t.includes('github.com')));
+const rest = wins.find((w) => w !== gh);
+await place(sw, rest.id, 0, 0);
+await place(sw, gh.id, 1320, 0);
+await show(sw, 'github.com/mikesimone/tab-automator/issues');
+await sw.evaluate(async (id) => { const t = (await chrome.tabs.query({ windowId: id })).find((x) => x.url.includes('en.wikipedia')); if (t) await chrome.tabs.update(t.id, { active: true }); }, rest.id);
+await sleep(1500);
+await dumpTabs(sw);
+shot('09-own-window-side-by-side', { x: 0, y: 0, w: 2600, h: 800 });
+await ctx.close();

@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: 'Quicksand'; src: url('../../../public/fonts/quicksand-variable.ttf') format('truetype'); font-weight: 300 700; }
+@font-face { font-family: 'Mono'; src: local('DejaVu Sans Mono'); }
+* { box-sizing: border-box; }
+body { margin: 0; width: 1280px; height: 800px; background: radial-gradient(circle at 8% 6%, rgba(255,143,208,.15), transparent 45%), radial-gradient(circle at 95% 96%, rgba(194,160,226,.18), transparent 50%), #1c1526; color: #f1e9fa; font-family: 'Quicksand', sans-serif; padding: 48px 60px; }
+h1 { margin: 0; font-size: 44px; font-weight: 700; }
+.sub { margin: 8px 0 26px; font-size: 21px; color: #a996b8; font-weight: 500; }
+.url { display: inline-block; padding: 12px 22px; background: #2e2340; border: 1px solid #4a3a63; border-radius: 999px; font-family: 'Mono', monospace; font-size: 20px; color: #f1e9fa; }
+.cols { display: grid; grid-template-columns: 640px 1fr; gap: 44px; margin-top: 22px; }
+.rule { display: flex; align-items: center; gap: 16px; background: #241b30; border: 1px solid #3a2d4d; border-radius: 18px; padding: 15px 20px; margin-bottom: 14px; }
+.num { width: 38px; height: 38px; border-radius: 50%; background: #2e2340; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 19px; color: #c2a0e2; flex-shrink: 0; }
+.rule .name { font-size: 22px; font-weight: 700; }
+.rule .frag { font-family: 'Mono', monospace; font-size: 15px; color: #a996b8; margin-top: 2px; }
+.badge { margin-left: auto; padding: 5px 14px; border-radius: 999px; font-size: 15px; font-weight: 700; white-space: nowrap; }
+.dim { opacity: .45; }
+.win { border-color: #c2a0e2; box-shadow: 0 0 0 2px rgba(194,160,226,.35); background: #2a1f3a; }
+.win .badge { background: #c2a0e2; color: #1c1526; }
+.never .badge { background: transparent; border: 1px solid #ff8fd0; color: #ff8fd0; }
+.never { opacity: .8; }
+.arrow { text-align: center; color: #c2a0e2; font-size: 26px; margin: -2px 0 8px; font-weight: 700; }
+h2 { margin: 0 0 14px; font-size: 26px; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { padding: 9px 16px; border-radius: 999px; background: #2e2340; border: 1px solid #4a3a63; font-size: 18px; font-weight: 600; }
+.note { margin-top: 26px; padding: 18px 22px; border-left: 5px solid #ff8fd0; background: #241b30; border-radius: 0 16px 16px 0; font-size: 19px; line-height: 1.45; color: #d9cbe8; font-weight: 500; }
+</style>
+</head>
+<body>
+<h1>How Tab Automator picks a rule</h1>
+<div class="sub">Rules are checked from top to bottom. The first enabled rule that matches wins.</div>
+<div class="url">https://staging.acme.dev/orders/1042</div>
+<div class="cols">
+  <div>
+    <div class="rule dim"><div class="num">1</div><div><div class="name">Acme docs</div><div class="frag">contains docs.acme.dev</div></div><span class="badge">No match</span></div>
+    <div class="rule dim"><div class="num">2</div><div><div class="name">Metrics dashboards</div><div class="frag">contains grafana.acme.dev</div></div><span class="badge">No match</span></div>
+    <div class="rule win"><div class="num">3</div><div><div class="name">Acme internal</div><div class="frag">contains acme.dev</div></div><span class="badge">Applies</span></div>
+    <div class="rule never"><div class="num">4</div><div><div class="name">Acme staging</div><div class="frag">starts with https://staging.acme.dev</div></div><span class="badge">Matches, never reached</span></div>
+  </div>
+  <div>
+    <h2>What a matching rule can do</h2>
+    <div class="chips">
+      <span class="chip">Rename the tab</span><span class="chip">Change its icon</span><span class="chip">Put it in a group</span><span class="chip">Pin it</span><span class="chip">Mute it</span><span class="chip">Ask before closing</span><span class="chip">Keep only one copy</span><span class="chip">Reload on a timer</span><span class="chip">Give it its own window</span>
+    </div>
+    <div class="note">Rule 4 never gets a turn because rule 3 already catches the same addresses. Tab Automator warns you about that, and <b>Test a URL</b> shows the result for any address. Drag rule 4 above rule 3 to fix it.</div>
+  </div>
+</div>
+</body>
+</html>
