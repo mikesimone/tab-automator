@@ -115,6 +115,16 @@ describe('AutoRefreshService', () => {
 		expect(mockChrome.alarms.clear).toHaveBeenCalledWith('tab-automator-auto-refresh:7');
 	});
 
+	it('clears a tab badge with null so the global "all rules paused" mark is not hidden', async () => {
+		const config = makeConfig(null);
+		const service = new AutoRefreshService(async () => config);
+
+		await service.onTabUpdated(dashboardTab, { status: 'complete' });
+
+		expect(mockChrome.action.setBadgeText).toHaveBeenCalledWith({ tabId: 7, text: null });
+		expect(mockChrome.action.setBadgeText).not.toHaveBeenCalledWith({ tabId: 7, text: '' });
+	});
+
 	it('reloads the tab when the alarm fires and nothing blocks it', async () => {
 		const config = makeConfig({ bypass_cache: true });
 		const service = new AutoRefreshService(async () => config);
@@ -192,7 +202,10 @@ describe('AutoRefreshService', () => {
 	});
 
 	it('waits while the browser is offline', async () => {
-		const service = new AutoRefreshService(async () => makeConfig({}), () => false);
+		const service = new AutoRefreshService(
+			async () => makeConfig({}),
+			() => false
+		);
 		mockChrome.tabs.get.mockResolvedValue(dashboardTab);
 
 		await service.handleAlarm({ name: 'tab-automator-auto-refresh:7' } as chrome.alarms.Alarm);
