@@ -1,96 +1,65 @@
-Take full control of your browser tabs with Tab Automator! Rename, organize, and customize your tabs effortlessly with powerful automation rules.
+Tab Automator renames, regroups, pins, refreshes and tidies your tabs for you, based on simple rules you set once.
 
-✨ Key Features:
+Make a rule like "every tab from these sites gets this title, this icon, and goes into this group", and Tab Automator applies it to every matching tab, now and later.
 
-🏷️ Smart Tab Renaming
-- Rename tabs with custom rules using URL patterns
-- Extract text from page elements with CSS selectors
-- Use regex patterns for advanced title matching
-- Right-click context menu for quick renaming
+⚡ Quick start
+- Click the Tab Automator icon on any page to make a rule for it
+- Or add the page to a rule you already have, in two clicks: just that site (mail.google.com), the whole domain (google.com and everything under it), or that page and the pages below it (github.com/yourname)
+- Long site lists look after themselves: when a rule gets very long, a new rule continues right below it with the same settings
 
-🎨 Visual Customization
-- Change tab icons easily (paste images directly!)
-- Custom favicons for any website
-- Support for emoji, URLs, and base64 images
+🏷️ Titles and icons
+- Rename tabs with your own text, or with text taken from the page
+- Change a tab's icon: pick one, paste an image, or use an emoji
+- Titles update as the page changes
 
-📁 Organization Tools
-- Group tabs by color and label
-- Pin important tabs automatically
-- Protect tabs from accidental closure
-- Enforce unique tabs (auto-close duplicates)
-- Mute noisy tabs
+📁 Keep tabs organized
+- Put matching tabs into colored, labeled tab groups
+- Pin, mute, or protect tabs from being closed by accident
+- Close duplicate tabs automatically
+- Send every tab a rule matches into its own window
 
 🔄 Auto-refresh
-- Reload tabs every 30 seconds, 1 minute, 5 minutes, 1 hour, 1 day, or any custom interval
+- Reload tabs every 30 seconds, 1 minute, 5 minutes, 1 hour, 1 day, or any interval you like
 - Set it per rule, or right-click any page to auto-refresh just that tab
 - Never reloads the tab you're looking at (unless you want it to)
-- Waits while a tab plays audio, while you've typed into the page, or while you're offline
-- Pause it on any single tab from the right-click menu
+- Waits while a tab is playing audio, while you're typing on the page, or while you're offline
 
-🍯 Tab Hive - Auto-Close Inactive Tabs
-- Automatically close tabs after period of inactivity
-- Save closed tabs for easy restoration
-- Search and restore from the side panel
-- Grouped by domain for better organization
+🍯 Tab Hive: close tabs you've forgotten about
+- Automatically close tabs you haven't used for a while
+- Find and reopen them from the side panel, grouped by site
 
-🌐 Side Panel Integration
-- Quick access to add rules
-- Add the site you're on to an existing rule in two clicks: just that site, the whole domain, or that page and everything under it
-- Browse and restore closed tabs
-- Real-time tab management
+🪟 Windows and sessions
+- Presenting? Move a group of tabs to its own window so your audience sees only those (Alt+Shift+M)
+- Merge all your windows into one (Alt+Shift+W)
+- Save windows or groups as named sessions and restore them later, pins and groups intact
 
-🔍 Spot Search - Quick Tab & Bookmark Finder
-- Instant search across all open tabs and bookmarks with Alt+Shift+E (or Cmd+Shift+E on Mac)
-- Real-time filtering as you type - search by title, URL, or tab group name
-- Keyboard navigation - use arrow keys (↑↓) to navigate, Enter to select, Escape to close
+🔍 Spot Search
+- Search all open tabs and bookmarks with Alt+Shift+E (Cmd+Shift+E on Mac) and jump straight there
 
-🪟 Windows Merger
-- Merge all browser windows into one with Alt+Shift+W (or Cmd+Shift+W on Mac)
-- Also accessible via right-click context menu
+🧪 Rule tools
+- Test any address to see exactly which rule applies to it
+- Pause all rules with one switch or Alt+Shift+P
+- Export rules to share, and import rules other people share (you review them first)
 
-⚡ Performance Mode
-- Lightweight mode for specific domains
-- Reduce memory usage on resource-heavy sites
-- Disable listeners selectively
-
-🪟 Workspaces, Sessions & Windows
-- Presenting or demoing? Move a group of tabs to its own window so your audience sees only those tabs (Alt+Shift+M)
-- Move a group to any window you already have open
-- Save windows, groups or everything as named sessions, and restore them later with pinned tabs and groups intact
-- "Own window" rule option: every tab a rule matches gathers in one window
+♻️ Backup and sync
+- Optional automatic backup of your settings to your Downloads folder (one dated file per day, last 7 days kept)
+- Optional sync of your rules across your computers through your browser account
 
 🎨 Themes
-- New Amethyst theme (dark and light): pastel purple and pink, no harsh reds
+- Light and dark themes, including Amethyst (soft purple and pink)
 
-🧪 Rule Tools
-- Test a URL to see exactly which rule applies, and which rules never get a chance
-- Pause all rules with one switch or Alt+Shift+P
-- Export rules to a file to share, and import rules other people share (you review them first)
-
-♻️ Backup & Sync Across Devices
-- Optional auto-backup of your full configuration to Downloads on every change (one dated file per day, last 7 days kept)
-- Optional rule synchronization via your browser account (Chrome Sync)
-- Consistent experience on all your devices
-
-🔐 Privacy First
-- Open-source and transparent
-- No data collection
-- All rules stored locally on your device
-- ReDoS attack protection
-
-🔧 Advanced Features:
-- URL fragment matching (CONTAINS, STARTS, ENDS, REGEX, EXACT)
-- Title matcher with capture groups (@0, @1, @2...)
-- URL matcher with capture groups ($0, $1, $2...)
-- Dynamic title updates with page changes
+🔧 For power users
+- Match addresses by Contains, Starts with, Ends with, Exact, or Regex
+- Reuse parts of the page title (@1, @2...) or address ($1, $2...) in the new title
+- Lightweight mode for heavy sites
 - Keyboard shortcuts for common actions
 
-🌍 Open Source:
-Source code and issues: https://github.com/mikesimone/tab-automator
+🔐 Privacy
+- No data collection. Nothing you browse is sent anywhere.
+- All rules and settings stay on your device (or in your own browser sync, if you turn it on)
+- Open source: https://github.com/mikesimone/tab-automator
 
-🔒 About Permissions:
-Access to all websites is required to update tabs as you browse. We respect your privacy - no data is collected or transmitted. All your rules and settings remain on your
-device.
+🔒 About permissions
+Tab Automator needs access to all websites so it can update tabs as you browse. It doesn't collect or send any data.
 
-💬 Support:
-Questions? Feedback? Contact us on the GitHub project or leave a review!
+💬 Questions or ideas? Open an issue on GitHub or leave a review.
