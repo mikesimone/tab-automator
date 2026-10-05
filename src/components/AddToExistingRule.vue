@@ -9,19 +9,23 @@
 			</option>
 		</select>
 
-		<div class="flex flex-wrap gap-x-4 gap-y-1">
+		<div class="flex flex-col gap-1">
 			<label
 				v-for="option in ADD_TO_RULE_SCOPES"
 				:key="option.value"
-				class="label cursor-pointer gap-1 p-0"
+				class="label cursor-pointer justify-start items-start gap-2 p-0"
 			>
-				<input v-model="scope" :value="option.value" class="radio radio-xs" type="radio" />
-				<span class="label-text text-xs">{{ option.label }}</span>
+				<input v-model="scope" :value="option.value" class="radio radio-xs mt-0.5" type="radio" />
+				<span class="flex flex-col">
+					<span class="label-text text-xs">{{ option.label }}</span>
+					<span class="text-[11px] opacity-60">{{ option.help }}</span>
+				</span>
 			</label>
 		</div>
 
-		<p v-if="piece" class="text-xs opacity-80 break-all">
-			Adds <code class="bg-base-200 px-1 rounded">{{ piece }}</code>
+		<p v-if="readableTarget" class="text-xs opacity-80 break-all">
+			For this page, that adds
+			<code class="bg-base-200 px-1 rounded">{{ readableTarget }}</code>
 		</p>
 
 		<p v-if="selectedRule && !isRegexRule" class="text-xs opacity-80">
@@ -33,7 +37,7 @@
 
 		<div class="flex justify-end">
 			<button
-				:disabled="!selectedRule || !piece"
+				:disabled="!selectedRule || !readableTarget"
 				class="btn btn-sm btn-outline btn-primary"
 				@click="add"
 			>
@@ -49,12 +53,13 @@ import type { Rule } from '../common/types.ts';
 import {
 	ADD_TO_RULE_SCOPES,
 	AddToRuleScope,
-	_addUrlToRule,
-	_patternForUrl,
+	RULE_SPLIT_LENGTH,
+	_planAddToRule,
+	_readableTargetForUrl,
 } from '../common/addToRule.ts';
 
 const props = defineProps<{ url: string }>();
-const emit = defineEmits<{ added: [rule: Rule] }>();
+const emit = defineEmits<{ added: [rule: Rule, message: string] }>();
 
 const rulesStore = useRulesStore();
 
@@ -82,7 +87,7 @@ const savedScope = readSaved(LAST_SCOPE_KEY) as AddToRuleScope;
 
 const selectedRuleId = ref(rulesStore.rules.some((r) => r.id === savedRuleId) ? savedRuleId : '');
 const scope = ref<AddToRuleScope>(
-	ADD_TO_RULE_SCOPES.some((s) => s.value === savedScope) ? savedScope : 'domain'
+	ADD_TO_RULE_SCOPES.some((s) => s.value === savedScope) ? savedScope : 'host'
 );
 const error = ref('');
 
@@ -91,7 +96,7 @@ const isRegexRule = computed(() => {
 	const detection = selectedRule.value?.detection;
 	return detection === 'REGEX' || detection === 'REGEXP';
 });
-const piece = computed(() => _patternForUrl(props.url, scope.value));
+const readableTarget = computed(() => _readableTargetForUrl(props.url, scope.value));
 
 watch([selectedRuleId, scope], () => {
 	error.value = '';
@@ -102,27 +107,32 @@ const add = async () => {
 	// this panel opened, and saving a stale copy would undo those edits.
 	await rulesStore.init();
 
-	if (!selectedRule.value) {
-		error.value = 'That rule no longer exists.';
-		return;
-	}
+	const plan = _planAddToRule(rulesStore.rules, selectedRuleId.value, props.url, scope.value);
 
-	const result = _addUrlToRule(selectedRule.value, props.url, scope.value);
-
-	if (!result.ok) {
+	if (!plan.ok) {
 		error.value = {
-			no_host: "This page doesn't have a domain that can be added.",
-			already_there: `That's already in “${selectedRule.value.name}”.`,
-			unsafe: `Adding that would make “${selectedRule.value.name}” too long or an unsafe pattern, so nothing was changed.`,
-		}[result.reason];
+			no_host: "This page doesn't have a site name that can be added.",
+			no_rule: 'That rule no longer exists.',
+			already_there: `That's already in “${plan.ruleName}”.`,
+			unsafe: "That address can't be added safely, so nothing was changed.",
+		}[plan.reason];
 		return;
 	}
 
-	await rulesStore.updateRule(result.rule);
+	let message: string;
+	if (plan.kind === 'appended') {
+		await rulesStore.updateRule(plan.rule);
+		message = `Added this page to “${plan.rule.name}”.`;
+	} else {
+		const index = rulesStore.rules.findIndex((r) => r.id === plan.insertAfterId);
+		rulesStore.rules.splice(index + 1, 0, plan.rule);
+		await rulesStore.save();
+		message = `“${plan.fullRuleName}” is full (over ${RULE_SPLIT_LENGTH.toLocaleString('en-US')} characters), so this page went into a new rule, “${plan.rule.name}”, right below it with the same settings.`;
+	}
 
-	save(LAST_RULE_KEY, result.rule.id);
+	save(LAST_RULE_KEY, selectedRuleId.value);
 	save(LAST_SCOPE_KEY, scope.value);
 
-	emit('added', result.rule);
+	emit('added', plan.rule, message);
 };
 </script>

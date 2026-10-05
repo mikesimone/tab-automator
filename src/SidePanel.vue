@@ -27,8 +27,8 @@
 		<div class="flex-1 overflow-y-auto p-4 relative z-10">
 			<!-- Add Rule Tab -->
 			<div v-if="activeTab === 'add-rule'">
-				<div v-if="addedToRuleName" class="alert alert-success text-sm py-2 mb-3">
-					Added this page to “{{ addedToRuleName }}”.
+				<div v-if="addedMessage" class="alert alert-success text-sm py-2 mb-3">
+					{{ addedMessage }}
 				</div>
 				<RuleForm
 					v-if="isInit"
@@ -68,7 +68,7 @@ const isInit = ref(false);
 const rule = ref(_getDefaultRule('', '', ''));
 const formKey = ref(0); // Key to force re-render of RuleForm
 const currentUrl = ref('');
-const addedToRuleName = ref('');
+const addedMessage = ref('');
 
 // Only offered while the page has no rule yet, and only for normal web pages.
 const canAddToExistingRule = computed(
@@ -92,8 +92,8 @@ async function reloadActiveTab() {
 	}
 }
 
-async function onAddedToRule(updatedRule: Rule) {
-	addedToRuleName.value = updatedRule.name;
+async function onAddedToRule(updatedRule: Rule, message: string) {
+	addedMessage.value = message;
 	rule.value = { ...updatedRule };
 	rulesStore.setCurrentRule(updatedRule);
 	formKey.value++;
@@ -113,7 +113,7 @@ async function updateFormForUrl(url: string) {
 	console.log('[SidePanel] Updating form for URL:', url);
 
 	currentUrl.value = url;
-	addedToRuleName.value = '';
+	addedMessage.value = '';
 
 	const foundRule = await _getRuleFromUrl(url);
 

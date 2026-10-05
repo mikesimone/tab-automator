@@ -35,6 +35,7 @@ Take full control of your browser tabs with Tab Automator! Rename, organize, and
 
 🌐 Side Panel Integration
 - Quick access to add rules
+- Add the site you're on to an existing rule in two clicks: just that site, the whole domain, or that page and everything under it
 - Browse and restore closed tabs
 - Real-time tab management
 
