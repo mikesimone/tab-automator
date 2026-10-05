@@ -28,6 +28,8 @@ node scripts/docs-images/infographics.mjs         # 19, 20 (from docs/images/sou
 python3 scripts/docs-images/compose.py            # 03, 04, 11 and the copy into docs/images
 ```
 
+`guide-screens.mjs` makes the screenshots in `docs/guide/images/` for the user guide. It needs no internet (made-up sample sites are served locally on port 80): `xvfb-run -a node scripts/docs-images/guide-screens.mjs`.
+
 `store-ui-screens.mjs`, `store-promo-tile.mjs` and `store-finalize.py` regenerate the Chrome Web Store screenshots and promo tile in `docs/store/`.
 
 ## Notes
