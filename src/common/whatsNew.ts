@@ -12,7 +12,13 @@ export const RELEASES: ReleaseNote[] = [
 				emoji: '➕',
 				title: 'Add a site to an existing rule from the toolbar',
 				description:
-					"On a page that no rule covers yet, click the Tab Automator icon. Below the new-rule form there is now Or add to an existing rule: pick the rule, then choose Just the domain, Domain and path, or Whole URL. The page is added to the end of the rule's pattern (as |example\\.com) and the tab reloads with the rule applied. Rules that don't use Regex yet are switched to Regex and keep matching the same pages.",
+					"On a page that no rule covers yet, click the Tab Automator icon. Below the new-rule form there is now Or add to an existing rule. Pick the rule, then choose how much of the page to add: the exact site name (mail.google.com), the whole domain (google.com, which also covers docs.google.com), or the full URL (github.com/mikesimone, which covers pages under it but not the rest of github.com). The tab reloads with the rule applied. Rules that don't use Regex yet are switched to Regex and keep matching the same pages.",
+			},
+			{
+				emoji: '🧩',
+				title: 'Full rules continue in a new rule',
+				description:
+					'When adding a site would push a rule past 1,000 characters, Tab Automator starts a new rule right below it, named like "Leaked (2)", with the same tab settings. Later additions go into it until it fills up too.',
 			},
 			{
 				emoji: '📏',
