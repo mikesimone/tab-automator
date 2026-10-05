@@ -4,6 +4,8 @@
 
 Automate your browser tabs with rules.
 
+**New to Tab Automator? Read the [User Guide](docs/guide/README.md).** It explains every feature in plain language, with pictures.
+
 ## Features
 
 * Rename tab
@@ -88,7 +90,7 @@ Tab Automator works in Chromium-based browsers (Chrome, Arc, Brave, Edge, Opera)
 
 ## Usage
 
-* Click on the Tab Automator icon <img src="public/assets/icon_16.png" alt="icon"> to open Popup or Right-Click then Options.
+* Click on the Tab Automator icon <img src="public/assets/icon_16.png" alt="icon"> to open the side panel, or right-click it and choose Options.
 * Create your tab rules.
 * Try & enjoy!
 
