@@ -27,12 +27,21 @@
 		<div class="flex-1 overflow-y-auto p-4 relative z-10">
 			<!-- Add Rule Tab -->
 			<div v-if="activeTab === 'add-rule'">
+				<div v-if="addedToRuleName" class="alert alert-success text-sm py-2 mb-3">
+					Added this page to “{{ addedToRuleName }}”.
+				</div>
 				<RuleForm
 					v-if="isInit"
 					:key="formKey"
 					:rule="rule"
 					:options="{ showCancel: false, showTitle: true, showOptionLink: true }"
 					@on-save="onRuleSaved"
+				/>
+				<AddToExistingRule
+					v-if="isInit && canAddToExistingRule"
+					:key="formKey"
+					:url="currentUrl"
+					@added="onAddedToRule"
 				/>
 			</div>
 
@@ -45,23 +54,31 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { _getDefaultRule, _getRuleFromUrl } from './common/storage';
 import { useRulesStore } from './stores/rules.store';
 import RuleForm from './components/options/center/sections/TabRules/RuleForm.vue';
 import TabHive from './components/TabHive.vue';
+import AddToExistingRule from './components/AddToExistingRule.vue';
+import type { Rule } from './common/types';
 
 const rulesStore = useRulesStore();
 const activeTab = ref<'hive' | 'add-rule'>('add-rule');
 const isInit = ref(false);
 const rule = ref(_getDefaultRule('', '', ''));
 const formKey = ref(0); // Key to force re-render of RuleForm
+const currentUrl = ref('');
+const addedToRuleName = ref('');
 
-async function onRuleSaved() {
-	// Reset the form to defaults after saving
-	rule.value = _getDefaultRule('', '', '');
+// Only offered while the page has no rule yet, and only for normal web pages.
+const canAddToExistingRule = computed(
+	() =>
+		!rulesStore.currentRule &&
+		rulesStore.rules.length > 0 &&
+		/^(https?|file):/.test(currentUrl.value)
+);
 
-	// Reload the active tab to apply changes
+async function reloadActiveTab() {
 	try {
 		const queryOptions = { active: true, lastFocusedWindow: true };
 		const tabs = await chrome.tabs.query(queryOptions);
@@ -75,8 +92,28 @@ async function onRuleSaved() {
 	}
 }
 
+async function onAddedToRule(updatedRule: Rule) {
+	addedToRuleName.value = updatedRule.name;
+	rule.value = { ...updatedRule };
+	rulesStore.setCurrentRule(updatedRule);
+	formKey.value++;
+
+	await reloadActiveTab();
+}
+
+async function onRuleSaved() {
+	// Reset the form to defaults after saving
+	rule.value = _getDefaultRule('', '', '');
+
+	// Reload the active tab to apply changes
+	await reloadActiveTab();
+}
+
 async function updateFormForUrl(url: string) {
 	console.log('[SidePanel] Updating form for URL:', url);
+
+	currentUrl.value = url;
+	addedToRuleName.value = '';
 
 	const foundRule = await _getRuleFromUrl(url);
 
@@ -134,6 +171,8 @@ onMounted(async () => {
 			const currentTab = tabs[0];
 
 			if (!currentTab.url) return;
+
+			currentUrl.value = currentTab.url;
 
 			const foundRule = await _getRuleFromUrl(currentTab.url);
 

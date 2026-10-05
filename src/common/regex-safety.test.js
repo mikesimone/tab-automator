@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { _isRegexPatternSafe, _safeRegexTestSync } from './regex-safety';
+import { REGEX_MAX_LENGTH, _isRegexPatternSafe, _safeRegexTestSync } from './regex-safety';
 
 describe('Regex Safety', () => {
 	beforeEach(() => {
@@ -65,7 +65,7 @@ describe('Regex Safety', () => {
 		});
 
 		it('should reject excessively long patterns', () => {
-			const longPattern = 'a'.repeat(1001);
+			const longPattern = 'a'.repeat(REGEX_MAX_LENGTH + 1);
 			expect(_isRegexPatternSafe(longPattern)).toBe(false);
 		});
 	});

@@ -6,6 +6,23 @@ export type ReleaseNote = {
 // Newest first. Add an entry here for every release that users should hear about.
 export const RELEASES: ReleaseNote[] = [
 	{
+		version: '1.6.0',
+		features: [
+			{
+				emoji: '➕',
+				title: 'Add a site to an existing rule from the toolbar',
+				description:
+					"On a page that no rule covers yet, click the Tab Automator icon. Below the new-rule form there is now Or add to an existing rule: pick the rule, then choose Just the domain, Domain and path, or Whole URL. The page is added to the end of the rule's pattern (as |example\\.com) and the tab reloads with the rule applied. Rules that don't use Regex yet are switched to Regex and keep matching the same pages.",
+			},
+			{
+				emoji: '📏',
+				title: 'Long site-list rules work everywhere',
+				description:
+					'Regex rules longer than 200 characters were ignored when setting tab titles and icons, and anything over 1,000 characters was ignored completely. Both limits are now 4,000 characters.',
+			},
+		],
+	},
+	{
 		version: '1.5.0',
 		features: [
 			{

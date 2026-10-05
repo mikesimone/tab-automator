@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RegexService } from '../RegexService';
+import { REGEX_MAX_LENGTH } from '../../common/regex-safety';
 
 describe('RegexService', () => {
 	let service: RegexService;
@@ -14,8 +15,8 @@ describe('RegexService', () => {
 			expect(result).toBe(false);
 		});
 
-		it('should return false for patterns longer than 200 characters', () => {
-			const longPattern = 'a'.repeat(201);
+		it('should return false for patterns longer than REGEX_MAX_LENGTH characters', () => {
+			const longPattern = 'a'.repeat(REGEX_MAX_LENGTH + 1);
 			const result = service.isRegexSafe(longPattern);
 			expect(result).toBe(false);
 		});
@@ -65,8 +66,8 @@ describe('RegexService', () => {
 			);
 		});
 
-		it('should throw error for patterns longer than 200 characters', () => {
-			const longPattern = 'a'.repeat(201);
+		it('should throw error for patterns longer than REGEX_MAX_LENGTH characters', () => {
+			const longPattern = 'a'.repeat(REGEX_MAX_LENGTH + 1);
 			expect(() => service.createSafeRegex(longPattern)).toThrow(
 				'Potentially unsafe regex pattern detected'
 			);
