@@ -4,6 +4,12 @@
  */
 
 /**
+ * Longest URL/title pattern accepted. Long lists of sites joined with | are linear to match, so
+ * this only guards against absurd input; it must stay large enough for big "site list" rules.
+ */
+export const REGEX_MAX_LENGTH = 4000;
+
+/**
  * Checks if a regex pattern contains potentially dangerous constructs
  * that could lead to catastrophic backtracking
  */
@@ -15,7 +21,7 @@ export function _isRegexPatternSafe(pattern: string): boolean {
 		}
 
 		// Check for excessively long patterns (could indicate malicious intent)
-		if (pattern.length > 1000) {
+		if (pattern.length > REGEX_MAX_LENGTH) {
 			return false;
 		}
 

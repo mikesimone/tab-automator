@@ -1,3 +1,5 @@
+import { REGEX_MAX_LENGTH } from '../common/regex-safety';
+
 /**
  * Service responsible for safe regex pattern validation and creation
  * Prevents ReDoS (Regular Expression Denial of Service) attacks
@@ -10,7 +12,7 @@ export class RegexService {
 	 */
 	isRegexSafe(pattern: string): boolean {
 		// Basic validation to prevent ReDoS attacks
-		if (typeof pattern !== 'string' || pattern.length > 200) {
+		if (typeof pattern !== 'string' || pattern.length > REGEX_MAX_LENGTH) {
 			return false;
 		}
 
