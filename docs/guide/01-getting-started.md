@@ -50,7 +50,7 @@ The menu on the left of the settings page has these sections:
 
 ## The one big idea: rules
 
-Everything in Tab Automator is done with **rules**.
+Most of what Tab Automator does is done with **rules**.
 
 A rule is like an email filter. An email filter says "when an email comes from my boss, put it in the Work folder." A Tab Automator rule says:
 
@@ -70,6 +70,16 @@ Here's what a few rules can do to an ordinary set of tabs:
 ![The same tabs after seven rules](../images/02-after-rules.png)
 
 *The same browser before and after. The tabs were renamed, given icons, sorted into colored groups (Dev, AI, Docs and Reading), and the Google tab was pinned.*
+
+## Things you can do without a rule
+
+Some jobs are one-offs, so they don't need a rule. Right-click anywhere on a page to:
+
+- **Reload this tab on a timer.** Choose **🔄 Auto-refresh this tab** and pick how often, from every 30 seconds to once a day. See [Auto-refresh](06-auto-refresh.md#way-1-right-click-for-one-tab-no-rule-needed).
+- **Put this tab away for later.** Choose **🍯 Send to Tab Hive**. See [Tab Hive](07-tab-hive.md#put-a-tab-away-yourself).
+- **Move this tab, or its whole group, to a new window.** See [Windows and sessions](08-windows-and-sessions.md#presenting-show-only-the-tabs-you-mean-to).
+
+The [right-click menu page](12-right-click-menu.md) lists everything that's there.
 
 ## Next step
 

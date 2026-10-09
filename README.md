@@ -15,6 +15,7 @@ Automate your browser tabs with rules.
 * Prevent tab closing
 * Unique tab
 * Mute tab
+* Auto-refresh a tab on a timer, either per rule or for one tab with no rule at all (right-click > Auto-refresh this tab)
 * Auto-backup your configuration to Downloads on every change
 * Sync your configuration across devices via your browser account
 * Test a URL to see which rule applies, with warnings for rules that can never apply
@@ -26,6 +27,8 @@ Automate your browser tabs with rules.
 * Amethyst theme (dark and light), the new default look
 
 Quick rename can be done by right-clicking anywhere in the page and click on "Rename Tab".
+To reload just one tab on a timer without making a rule, right-click anywhere in the page and choose
+"Auto-refresh this tab", then an interval.
 
 ### Backup & Sync
 
