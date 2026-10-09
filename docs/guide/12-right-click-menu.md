@@ -11,8 +11,8 @@ Right-click anywhere on a web page and you'll see a few Tab Automator choices in
 | **🪟 Move tab or group to new window** | Moves this tab, or its whole group, into a new window. | [Presenting?](08-windows-and-sessions.md#presenting-show-only-the-tabs-you-mean-to) |
 | **🍯 Send to Tab Hive** | Closes this tab and saves it in Tab Hive, so you can reopen it later. | [Tab Hive](07-tab-hive.md#put-a-tab-away-yourself) |
 | **🚫 Exclude from Tab Hive** → **🌐 Exclude this domain** / **🔗 Exclude this URL** | Makes sure Tab Hive never closes this website, or this one page. | [The Reject List](07-tab-hive.md#the-reject-list-websites-that-are-never-closed) |
-| **🔄 Auto-refresh this tab** → **Every 30 seconds** … **Every 1 day** | Reloads this tab on a timer. | [Auto-refresh](06-auto-refresh.md#way-1-right-click-for-one-tab-right-now) |
-| **🔄 Auto-refresh this tab** → **⏸ Pause on this tab** / **▶ Resume on this tab** | Stops or restarts auto-refresh for this one tab. | [Auto-refresh](06-auto-refresh.md#way-1-right-click-for-one-tab-right-now) |
+| **🔄 Auto-refresh this tab** → **Every 30 seconds** … **Every 1 day** | Reloads this tab on a timer. No rule needed. | [Auto-refresh](06-auto-refresh.md#way-1-right-click-for-one-tab-no-rule-needed) |
+| **🔄 Auto-refresh this tab** → **⏸ Pause on this tab** / **▶ Resume on this tab** | Stops or restarts auto-refresh for this one tab. | [Auto-refresh](06-auto-refresh.md#way-1-right-click-for-one-tab-no-rule-needed) |
 
 Right-clicking the **Tab Automator button** on your toolbar gives Chrome's own menu. Choose **Options** there to open the Tab Automator settings page.
 

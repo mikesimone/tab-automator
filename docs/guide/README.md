@@ -5,7 +5,7 @@ Tab Automator makes your browser tabs easier to live with. You tell it what you 
 - Give a tab a shorter or clearer name, like "📬 Work email" instead of "Inbox (3) - jane.doe@company.com - Company Mail".
 - Put all your work tabs together in a purple group called "Work".
 - Keep your email tab pinned to the left edge so it never gets lost.
-- Reload a dashboard every 5 minutes so it's always up to date.
+- Reload a dashboard every 5 minutes so it's always up to date. (No rule needed: just right-click the page.)
 - Close tabs you forgot about, and bring them back later if you need them.
 
 This guide explains every feature in plain language, with pictures. You don't need to know anything technical to use it. Start with the first two pages, then jump to whatever you need.

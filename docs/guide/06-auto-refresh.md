@@ -6,11 +6,11 @@ Some pages only show new information when you reload them: a sales dashboard, an
 
 By default, Auto-refresh **never reloads the tab you're looking at**. It waits until you switch away, so it won't yank a page out from under you while you're reading it.
 
-There are two ways to use it.
+There are two ways to use it. The first one doesn't need a rule at all.
 
-## Way 1: Right-click, for one tab, right now
+## Way 1: Right-click, for one tab, no rule needed
 
-Right-click anywhere on the page, choose **🔄 Auto-refresh this tab**, and pick how often:
+This is the quickest way, and you don't have to make a rule first. Right-click anywhere on the page, choose **🔄 Auto-refresh this tab**, and pick how often:
 
 - Every 30 seconds
 - Every 1 minute
@@ -18,9 +18,11 @@ Right-click anywhere on the page, choose **🔄 Auto-refresh this tab**, and pic
 - Every 1 hour
 - Every 1 day
 
-That tab now reloads on that schedule. It keeps going until you close the tab or go to a different website in it.
+That tab now reloads on that schedule. A 🔄 mark on the Tab Automator toolbar button shows it's on. It keeps going until you close the tab or go to a different website in it. Nothing is saved as a rule, so nothing changes for your other tabs.
 
-To stop it for a while, right-click and choose **🔄 Auto-refresh this tab → ⏸ Pause on this tab**. To start again, choose **▶ Resume on this tab**.
+Like a rule, a right-click timer waits while you're looking at the tab, and reloads once you switch to another tab. If you want a page reloaded even while you're watching it, use a rule instead (Way 2) and turn off **Don't refresh while it's the active tab**.
+
+To stop it for a while, right-click and choose **🔄 Auto-refresh this tab → ⏸ Pause on this tab**. To start again, choose **▶ Resume on this tab**. To change how often, just pick a different time from the same menu.
 
 ## Way 2: In a rule, for every matching tab
 
