@@ -6,6 +6,23 @@ export type ReleaseNote = {
 // Newest first. Add an entry here for every release that users should hear about.
 export const RELEASES: ReleaseNote[] = [
 	{
+		version: '1.7.0',
+		features: [
+			{
+				emoji: '🩺',
+				title: 'Check rules: find rules that other rules hide',
+				description:
+					'On the Rules page, open Check rules. It finds rules that never apply because a rule above them takes all their pages first, rules that only sometimes apply (with example addresses), duplicate rules, and Regex that is switched off for safety. Regex site lists are checked too, using example addresses made from your rules plus your open tabs and bookmarks.',
+			},
+			{
+				emoji: '🧱',
+				title: 'Most specific first, like a firewall',
+				description:
+					"When a specific rule sits below a general one (say, mail.google.com below google.com), Check rules suggests moving it up and does it with one click. It only moves a rule when no other rule's pages would change hands, and Undo puts everything back.",
+			},
+		],
+	},
+	{
 		version: '1.6.0',
 		features: [
 			{

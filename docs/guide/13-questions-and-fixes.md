@@ -9,7 +9,7 @@ Try these in order:
 1. **Reload the tab.** Press **F5** (**Command + R** on a Mac). Rules apply when a page loads, so tabs that were already open don't change until they reload.
 2. **Check that the rule is on.** On the **📋 Rules** page, its switch should be on, and in the rule itself the bottom switch should say **Enabled**.
 3. **Check that rules aren't paused.** If the Tab Automator button shows a pause mark, press **Alt + Shift + P** to resume. See [Turn every rule off for a while](05-which-pages-a-rule-covers.md#turn-every-rule-off-for-a-while).
-4. **Test the address.** On the **📋 Rules** page, open **Test a URL** and paste the page's address. It tells you which rule applies, or that none does. If a different rule wins, drag your rule above it. See [When two rules cover the same page](05-which-pages-a-rule-covers.md#when-two-rules-cover-the-same-page-top-wins).
+4. **Test the address.** On the **📋 Rules** page, open **Test a URL** and paste the page's address. It tells you which rule applies, or that none does. If a different rule wins, drag your rule above it, or open **Check rules** to find and fix every rule like that at once. See [When two rules cover the same page](05-which-pages-a-rule-covers.md#when-two-rules-cover-the-same-page-top-wins).
 5. **Check the URL Fragment.** It must really be part of the page's address. Copy the address from the address bar and compare. A common mistake is typing `https://` with **Contains** when the site uses `http://`, or the other way around. Leave the `https://` off when you use **Contains**.
 
 ## It doesn't work on some pages.

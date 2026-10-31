@@ -69,7 +69,8 @@ export function _testUrlAgainstRules(rules: Rule[], url: string): RuleTestOutcom
 	return { winner, results };
 }
 
-function _isSubsumedBy(earlier: Rule, later: Rule): boolean {
+/** Every URL the later rule matches is also matched by the earlier one (plain-text rules only). */
+export function _isSubsumedBy(earlier: Rule, later: Rule): boolean {
 	const a = earlier.detection ?? 'CONTAINS';
 	const b = later.detection ?? 'CONTAINS';
 	const fragmentA = earlier.url_fragment;

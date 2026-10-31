@@ -19,6 +19,7 @@ Automate your browser tabs with rules.
 * Auto-backup your configuration to Downloads on every change
 * Sync your configuration across devices via your browser account
 * Test a URL to see which rule applies, with warnings for rules that can never apply
+* Check rules: find rules hidden by other rules and reorder them most-specific-first, like a firewall
 * Pause all rules at once (Alt+Shift+P)
 * Share rules as a file, and import rules other people share
 * Workspaces: move a group of tabs to its own window (Alt+Shift+M), perfect for demos
@@ -54,9 +55,15 @@ Both are off by default and can be toggled independently.
 
 * **Test a URL** - paste an address to see which rule would apply to it and what
   it would do. Rules are checked top to bottom and the first enabled match wins;
-  later matches are shown as never reached. Rules that an earlier rule always
-  catches (for plain-text detection types) are marked with a warning in the
-  table.
+  later matches are shown as never reached. Rules that earlier rules always
+  catch are marked with a warning in the table.
+* **Check rules** - checks the whole list, Regex rules included: rules that never
+  apply because rules above take all their pages, rules that only sometimes apply
+  (with example addresses), duplicates, and Regex that is blocked as unsafe. It
+  can reorder the list most-specific-first, like firewall rules, moving a rule
+  only when no other rule's pages change hands, with Undo. It compares rules by
+  trying example addresses made from each pattern plus your open tabs and
+  bookmarks; plain-text rules are compared exactly.
 * **Pause all rules** - a switch on the Rules page, or Alt+Shift+P (Command+Shift+P
   on Mac). While paused no rule renames, groups, pins, mutes, protects, closes
   duplicates of or auto-refreshes a tab, and the toolbar icon shows a pause mark.

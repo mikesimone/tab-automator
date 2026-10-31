@@ -43,6 +43,7 @@
 
 		<div v-else class="container mx-auto max-w-5xl p-4">
 			<RuleTester />
+			<RuleCheck />
 
 			<div class="card bg-base-200">
 				<div class="card-body">
@@ -79,6 +80,7 @@ import { GLOBAL_EVENTS, RuleModalParams } from '../../../../common/types.ts';
 import RuleForm from './TabRules/RuleForm.vue';
 import Disclaimer from '../../../global/Disclaimer.vue';
 import RuleTester from './TabRules/RuleTester.vue';
+import RuleCheck from './TabRules/RuleCheck.vue';
 import RulePackModal from './TabRules/RulePackModal.vue';
 import { usePaused } from '../../../../common/usePaused.ts';
 

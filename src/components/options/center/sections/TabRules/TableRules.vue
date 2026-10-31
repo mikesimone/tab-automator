@@ -43,13 +43,9 @@
 						<td scope="row">
 							{{ rule.name }}
 							<span
-								v-if="shadowedBy.get(rule.id)"
+								v-if="hiddenTips.get(rule.id)"
 								class="tooltip tooltip-right ml-1"
-								:data-tip="
-									'Never applies: \'' +
-									shadowedBy.get(rule.id)?.name +
-									'\' above already catches these URLs'
-								"
+								:data-tip="hiddenTips.get(rule.id)"
 								>⚠️</span
 							>
 							<span
@@ -134,7 +130,7 @@ import RefreshButton from '../../../../global/RefreshButton.vue';
 import { _chromeGroupColor, _shortify } from '../../../../../common/helpers.ts';
 import ColorVisualizer from '../TabGroups/ColorVisualizer.vue';
 import draggable from 'vuedraggable';
-import { _findShadowedRules } from '../../../../../common/ruleMatching.ts';
+import { _checkRules } from '../../../../../common/ruleCheck.ts';
 import { FEATURE_FLAGS } from '../../../../../common/feature-flags.ts';
 import {
 	_clampAutoRefreshInterval,
@@ -164,7 +160,21 @@ watch(
 	}
 );
 
-const shadowedBy = computed(() => _findShadowedRules(rulesStore.rules));
+// Rules that never apply because rules above them take all their pages. See Check rules.
+const hiddenTips = computed(() => {
+	const tips = new Map<string, string>();
+	for (const finding of _checkRules(rulesStore.rules).findings) {
+		if (finding.kind !== 'hidden') continue;
+		const by = finding.takenBy.map((r) => `'${r.name}'`).join(', ');
+		tips.set(
+			finding.rule.id,
+			`${finding.certain ? 'Never applies' : 'Probably never applies'}: ${by} above already ${
+				finding.takenBy.length > 1 ? 'catch' : 'catches'
+			} these URLs. Open Check rules to fix it.`
+		);
+	}
+	return tips;
+});
 
 const groupsById = computed(() => {
 	return props.groups.reduce(
