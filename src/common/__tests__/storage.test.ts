@@ -121,7 +121,9 @@ describe('Storage Migration Tests', () => {
 		vi.clearAllMocks();
 	});
 
-	describe('Migration from Sync to Local', () => {
+	// A new device with nothing saved takes the rules from sync, and leaves the account's copy alone
+	// (other devices sync from it). This used to copy them and then delete them from sync.
+	describe('New device: rules from sync', () => {
 		it('should migrate uncompressed data from sync storage', async () => {
 			// Setup: Old format with uncompressed data in sync
 			const mockData = createMockData(5);
@@ -134,7 +136,7 @@ describe('Storage Migration Tests', () => {
 			expect(result).toBeDefined();
 			expect(result?.rules.length).toBe(5);
 			expect(mockLocalStorage[STORAGE_KEY_COMPRESSED]).toBeDefined();
-			expect(mockSyncStorage[STORAGE_KEY]).toBeUndefined(); // Cleaned up
+			expect(mockSyncStorage[STORAGE_KEY]).toBeDefined(); // Kept for other devices
 		});
 
 		it('should migrate compressed data from sync storage', async () => {
@@ -150,7 +152,7 @@ describe('Storage Migration Tests', () => {
 			expect(result).toBeDefined();
 			expect(result?.rules.length).toBe(10);
 			expect(mockLocalStorage[STORAGE_KEY_COMPRESSED]).toBeDefined();
-			expect(mockSyncStorage[STORAGE_KEY_COMPRESSED]).toBeUndefined(); // Cleaned up
+			expect(mockSyncStorage[STORAGE_KEY_COMPRESSED]).toBeDefined(); // Kept for other devices
 		});
 
 		it('should migrate chunked data from sync storage', async () => {
@@ -184,11 +186,9 @@ describe('Storage Migration Tests', () => {
 			expect(result?.rules.length).toBe(100);
 			expect(mockLocalStorage[STORAGE_KEY_COMPRESSED]).toBeDefined();
 
-			// Verify sync storage was cleaned up
-			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '0']).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '1']).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '2']).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_METADATA]).toBeUndefined();
+			// The account's copy is kept for other devices
+			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '0']).toBeDefined();
+			expect(mockSyncStorage[STORAGE_KEY_METADATA]).toBeDefined();
 		});
 
 		it('should handle already migrated data in local storage', async () => {
@@ -258,7 +258,7 @@ describe('Storage Migration Tests', () => {
 	});
 
 	describe('Clear Storage', () => {
-		it('should clear all data from local and sync storage', async () => {
+		it('clears this device, and never the copy in the browser account', async () => {
 			// Setup data in both storages
 			mockLocalStorage[STORAGE_KEY_COMPRESSED] = 'compressed_data';
 			mockLocalStorage[STORAGE_KEY] = { rules: [] };
@@ -270,22 +270,20 @@ describe('Storage Migration Tests', () => {
 			// Verify all keys are removed
 			expect(mockLocalStorage[STORAGE_KEY_COMPRESSED]).toBeUndefined();
 			expect(mockLocalStorage[STORAGE_KEY]).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY]).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_COMPRESSED]).toBeUndefined();
+			expect(mockSyncStorage[STORAGE_KEY]).toBeDefined();
+			expect(mockSyncStorage[STORAGE_KEY_COMPRESSED]).toBeDefined();
 		});
 
-		it('should clear chunked data', async () => {
-			// Setup chunked data
-			mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '0'] = 'chunk0';
-			mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '1'] = 'chunk1';
-			mockSyncStorage[STORAGE_KEY_METADATA] = '{"chunkCount": 2}';
+		it('clears chunked data on this device', async () => {
+			mockLocalStorage[STORAGE_KEY_CHUNK_PREFIX + '0'] = 'chunk0';
+			mockLocalStorage[STORAGE_KEY_CHUNK_PREFIX + '1'] = 'chunk1';
+			mockLocalStorage[STORAGE_KEY_METADATA] = '{"chunkCount": 2}';
 
 			await _clearStorage();
 
-			// Verify chunks are removed
-			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '0']).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_CHUNK_PREFIX + '1']).toBeUndefined();
-			expect(mockSyncStorage[STORAGE_KEY_METADATA]).toBeUndefined();
+			expect(mockLocalStorage[STORAGE_KEY_CHUNK_PREFIX + '0']).toBeUndefined();
+			expect(mockLocalStorage[STORAGE_KEY_CHUNK_PREFIX + '1']).toBeUndefined();
+			expect(mockLocalStorage[STORAGE_KEY_METADATA]).toBeUndefined();
 		});
 	});
 
@@ -405,6 +403,7 @@ describe('Storage Migration Tests', () => {
 		// but the cleanup call had already deleted what the first save wrote,
 		// so sync ended up empty and "Sync Now" reported no data found.
 		it('does not wipe sync storage on a second, unchanged save', async () => {
+			mockLocalStorage['tab_modifier_sync_joined'] = true;
 			const config = createMockData(3);
 			config.settings.sync_enabled = true;
 

@@ -1,8 +1,9 @@
-import { TabModifierSettings } from './types.ts';
+import { Group, Rule, TabModifierSettings } from './types.ts';
 import { debugLog } from './debugLog.ts';
 import {
 	_compressData,
 	_loadFromStorage,
+	_setStorage,
 	STORAGE_KEY_CHUNK_PREFIX,
 	STORAGE_KEY_METADATA,
 } from './storage.ts';
@@ -22,6 +23,17 @@ import {
 export const LOCAL_SYNC_HASH_KEY = 'tab_modifier_sync_hash';
 
 /**
+ * Local-only flags for joining sync. A device that hasn't joined yet never pushes: it first looks
+ * for rules already in the browser account and takes them (merged with anything made locally).
+ * Chrome can take a while to download sync data to a new device, so when the account has nothing,
+ * the device only joins (and starts pushing) after SYNC_JOIN_WAIT_MS. This is what stops a new,
+ * empty device from overwriting the account's rules.
+ */
+export const LOCAL_SYNC_JOINED_KEY = 'tab_modifier_sync_joined';
+export const LOCAL_SYNC_FIRST_SEEN_KEY = 'tab_modifier_sync_first_seen';
+export const SYNC_JOIN_WAIT_MS = 10 * 60 * 1000;
+
+/**
  * Conservative per-chunk character budget. compressToUTF16's output can use
  * the full UTF-16 code unit range, which can cost up to 3 bytes/char once
  * UTF-8 encoded for chrome.storage's quota accounting - so we budget for the
@@ -33,7 +45,16 @@ const SYNC_CHUNK_CHAR_LIMIT = 2000;
 const DEFAULT_SYNC_QUOTA_BYTES = 102400; // chrome.storage.sync.QUOTA_BYTES
 const DEFAULT_SYNC_MAX_ITEMS = 512; // chrome.storage.sync.MAX_ITEMS
 
-export type SyncPushResult = 'ok' | 'disabled' | 'unchanged' | 'too-large' | 'unavailable';
+export type SyncPushResult =
+	| 'ok'
+	| 'disabled'
+	| 'unchanged'
+	| 'too-large'
+	| 'unavailable'
+	| 'empty'
+	| 'waiting'
+	| 'adopted';
+export type SyncJoinResult = 'joined' | 'adopted' | 'waiting' | 'disabled' | 'unavailable';
 export type SyncPullResult =
 	| { status: 'updated'; data: TabModifierSettings }
 	| { status: 'unchanged' | 'no-data' | 'unavailable' };
@@ -104,6 +125,123 @@ function _isSyncAvailable(): boolean {
 	return typeof chrome !== 'undefined' && !!chrome.storage?.sync && !!crypto?.subtle;
 }
 
+/** No rules and no groups: a fresh install. Never pushed, and never applied over real rules. */
+export function _isEmptyConfig(config: TabModifierSettings | null | undefined): boolean {
+	return !config || ((config.rules?.length ?? 0) === 0 && (config.groups?.length ?? 0) === 0);
+}
+
+const _ruleKey = (rule: Rule) => `${rule.detection}\u0000${rule.url_fragment}\u0000${rule.name}`;
+
+/**
+ * The account's config, plus any rules and groups this device made that the account doesn't have
+ * (matched by id, and rules also by name + pattern). The account's settings win, with sync on.
+ */
+export function _mergeConfigs(
+	remote: TabModifierSettings,
+	local: TabModifierSettings | null | undefined
+): TabModifierSettings {
+	const rules: Rule[] = [...(remote.rules ?? [])];
+	const groups: Group[] = [...(remote.groups ?? [])];
+
+	if (local && !_isEmptyConfig(local)) {
+		const groupIds = new Set(groups.map((g) => g.id));
+		for (const group of local.groups ?? []) {
+			if (!groupIds.has(group.id)) groups.push(group);
+		}
+
+		const ruleIds = new Set(rules.map((r) => r.id));
+		const ruleKeys = new Set(rules.map(_ruleKey));
+		for (const rule of local.rules ?? []) {
+			if (!ruleIds.has(rule.id) && !ruleKeys.has(_ruleKey(rule))) rules.push(rule);
+		}
+	}
+
+	return {
+		rules,
+		groups,
+		settings: { ...(local?.settings ?? {}), ...remote.settings, sync_enabled: true },
+	};
+}
+
+/** True once this device has joined sync (see LOCAL_SYNC_JOINED_KEY). */
+export async function _hasJoinedSync(): Promise<boolean> {
+	try {
+		const items = await _storageGet(chrome.storage.local, [LOCAL_SYNC_JOINED_KEY]);
+		return items[LOCAL_SYNC_JOINED_KEY] === true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Brings a device that hasn't joined sync yet up to date with the browser account: if the account
+ * has rules, they're saved here (merged with any made locally) and the device has joined. If the
+ * account has nothing yet, the device waits until SYNC_JOIN_WAIT_MS after it first looked before
+ * joining, in case Chrome is still downloading. Safe to call often; joined devices return at once.
+ */
+export async function _joinSync(
+	save: (config: TabModifierSettings) => Promise<void> = _setStorage
+): Promise<SyncJoinResult> {
+	if (!_isSyncAvailable()) {
+		return 'unavailable';
+	}
+
+	try {
+		const flags = await _storageGet(chrome.storage.local, [
+			LOCAL_SYNC_JOINED_KEY,
+			LOCAL_SYNC_FIRST_SEEN_KEY,
+		]);
+
+		if (flags[LOCAL_SYNC_JOINED_KEY] === true) {
+			return 'joined';
+		}
+
+		const local = await _loadFromStorage(chrome.storage.local, 'local');
+
+		// A device with its own rules that turned sync off is left alone.
+		if (local && !_isEmptyConfig(local) && local.settings?.sync_enabled === false) {
+			return 'disabled';
+		}
+
+		let firstSeen: number = flags[LOCAL_SYNC_FIRST_SEEN_KEY];
+		if (typeof firstSeen !== 'number') {
+			firstSeen = Date.now();
+			await _storageSet(chrome.storage.local, { [LOCAL_SYNC_FIRST_SEEN_KEY]: firstSeen });
+		}
+
+		const remote = await _loadFromStorage(chrome.storage.sync, 'sync');
+
+		if (remote && !_isEmptyConfig(remote)) {
+			const meta = (await _storageGet(chrome.storage.sync, [STORAGE_KEY_METADATA]))[
+				STORAGE_KEY_METADATA
+			];
+			// Joined first, so the save below may push the merged result.
+			await _storageSet(chrome.storage.local, {
+				[LOCAL_SYNC_JOINED_KEY]: true,
+				...(meta?.hash ? { [LOCAL_SYNC_HASH_KEY]: meta.hash } : {}),
+			});
+			await save(_mergeConfigs(remote, local));
+			console.log('[Tab Automator] 🔄 Joined sync: took the rules saved in the browser account');
+			return 'adopted';
+		}
+
+		if (Date.now() - firstSeen >= SYNC_JOIN_WAIT_MS) {
+			await _storageSet(chrome.storage.local, { [LOCAL_SYNC_JOINED_KEY]: true });
+			debugLog('[Tab Automator] Joined sync: the browser account had no rules');
+			// Put this device's rules in the account now, rather than at the next edit.
+			if (local && !_isEmptyConfig(local) && local.settings?.sync_enabled !== false) {
+				await _pushToSync(local);
+			}
+			return 'joined';
+		}
+
+		return 'waiting';
+	} catch (error) {
+		console.error('[Tab Automator] Failed to join sync:', error);
+		return 'unavailable';
+	}
+}
+
 /**
  * Mirror the given config to chrome.storage.sync, so it becomes available
  * to the user's other devices signed into the same browser account.
@@ -122,6 +260,18 @@ export async function _pushToSync(tabModifier: TabModifierSettings): Promise<Syn
 
 	if (!_isSyncAvailable()) {
 		return 'unavailable';
+	}
+
+	// Never write a blank config to the account: that's how a new device wipes everyone's rules.
+	if (_isEmptyConfig(tabModifier)) {
+		return 'empty';
+	}
+
+	// A device that hasn't joined yet takes the account's rules first instead of overwriting them.
+	if (!(await _hasJoinedSync())) {
+		const joined = await _joinSync();
+		if (joined === 'adopted') return 'adopted'; // The merged config was already pushed.
+		if (joined !== 'joined') return 'waiting';
 	}
 
 	try {
@@ -226,7 +376,8 @@ export async function _pullFromSyncIfNewer(): Promise<SyncPullResult> {
 
 		const data = await _loadFromStorage(chrome.storage.sync, 'sync');
 
-		if (!data) {
+		// A blank config in the account (e.g. pushed by an older version) is never applied.
+		if (!data || _isEmptyConfig(data)) {
 			return { status: 'no-data' };
 		}
 

@@ -322,8 +322,10 @@
 						<p>
 							Mirror your configuration through your browser's built-in account sync
 							(<code>chrome.storage.sync</code>), so it's available on your other devices signed
-							into the same account. Very large configurations (lots of custom icons) may not fit
-							the sync quota - Tab Automator falls back to local + Downloads backup only if so.
+							into the same account. On by default. A new computer picks up the rules already in
+							your account (adding any it has of its own) and never overwrites them with a blank
+							list. Very large configurations (lots of custom icons) may not fit the sync quota -
+							Tab Automator falls back to local + Downloads backup only if so.
 						</p>
 					</div>
 					<div class="col-span-1 flex justify-end">
@@ -375,7 +377,7 @@ import {
 	BACKUP_FILENAME_PATTERN,
 } from '../../../../common/autoBackup.ts';
 import { _downloadTextFile } from '../../../../common/download.ts';
-import { _pullFromSyncIfNewer } from '../../../../common/syncStorage.ts';
+import { _joinSync, _pullFromSyncIfNewer } from '../../../../common/syncStorage.ts';
 
 const emitter: any = inject('emitter');
 
@@ -492,23 +494,41 @@ watch(syncEnabled, async (enabled) => {
 	rulesStore.settings.sync_enabled = enabled;
 	await rulesStore.save();
 
+	let message = enabled ? 'Sync across devices enabled!' : 'Sync across devices disabled.';
+
 	if (enabled) {
-		syncStatusText.value = 'Sync enabled - pushing current config…';
+		// Saving above joins sync first: if the browser account already has rules, they were just
+		// merged into this device's rules (never overwritten by them). Show what's saved now.
+		const joined = await _joinSync();
+		await rulesStore.init();
+		if (joined === 'waiting') {
+			message =
+				'Sync enabled. Checking your browser account for rules from your other computers; they will show up here by themselves.';
+		}
 		rulesStore.settings.last_synced_at = Date.now();
 		await rulesStore.save();
 		syncStatusText.value = `Last synced: ${new Date(rulesStore.settings.last_synced_at).toLocaleString()}`;
 	}
 
-	emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
-		type: 'success',
-		message: enabled ? 'Sync across devices enabled!' : 'Sync across devices disabled.',
-	});
+	emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, { type: 'success', message });
 });
 
 const syncNow = async () => {
 	syncNowInFlight.value = true;
 
 	try {
+		const joined = await _joinSync();
+
+		if (joined === 'adopted') {
+			await rulesStore.init();
+			emitter.emit(GLOBAL_EVENTS.SHOW_TOAST, {
+				type: 'success',
+				message: 'Got your rules from your browser account!',
+			});
+			syncStatusText.value = `Last synced: ${new Date().toLocaleString()}`;
+			return;
+		}
+
 		const result = await _pullFromSyncIfNewer();
 
 		if (result.status === 'updated') {

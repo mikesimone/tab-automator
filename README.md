@@ -42,14 +42,20 @@ In Options > Settings:
   backup) and overwritten as you keep making changes, and files older than 7
   days are deleted, so Downloads never fills up. The manual **Export** in
   Settings uses the same naming.
-* **Sync Across Devices** - mirrors your configuration through your browser's
-  built-in account sync (`chrome.storage.sync`), so it shows up automatically
-  on your other devices signed into the same account. Very large
+* **Sync Across Devices** (on by default) - mirrors your configuration through
+  your browser's built-in account sync (`chrome.storage.sync`), so it shows up
+  automatically on your other devices signed into the same account. A new
+  device never pushes before it has looked for rules already in the account:
+  if there are some, it takes them (adding any rules it made itself) and only
+  then joins; if there are none, it waits 10 minutes in case Chrome is still
+  downloading them. A config with no rules and no groups is never written to,
+  or applied from, the account, and clearing a device never clears the
+  account's copy. Very large
   configurations (lots of custom icons) may exceed the browser's sync quota;
   Tab Automator detects that and falls back to local + Downloads backup only, rather
   than failing silently.
 
-Both are off by default and can be toggled independently.
+Auto-Backup is off by default and Sync is on; they can be toggled independently.
 
 ### Rules page tools
 

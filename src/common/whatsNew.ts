@@ -6,6 +6,23 @@ export type ReleaseNote = {
 // Newest first. Add an entry here for every release that users should hear about.
 export const RELEASES: ReleaseNote[] = [
 	{
+		version: '1.8.0',
+		features: [
+			{
+				emoji: '🔄',
+				title: 'Your rules follow you to a new computer',
+				description:
+					'Sync via browser account is now on by default. Install Tab Automator on another computer signed in to the same Chrome account and your rules show up by themselves, usually within a few minutes. No more being asked to make your first rule.',
+			},
+			{
+				emoji: '🛡️',
+				title: 'A new computer can no longer wipe your rules',
+				description:
+					'Before, turning on sync on a new computer could replace your saved rules with its empty list. Now a new computer always takes the rules already in your account first, adds any it made itself, and never saves an empty list to your account.',
+			},
+		],
+	},
+	{
 		version: '1.7.0',
 		features: [
 			{

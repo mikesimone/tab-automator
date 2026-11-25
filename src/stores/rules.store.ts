@@ -152,7 +152,7 @@ export const useRulesStore = defineStore('rules', {
 				settings.auto_backup_enabled = false;
 			}
 			if (settings.sync_enabled === undefined) {
-				settings.sync_enabled = false;
+				settings.sync_enabled = true;
 			}
 			return settings;
 		},

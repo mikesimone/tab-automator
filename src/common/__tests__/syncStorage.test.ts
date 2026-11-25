@@ -1,12 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { _pushToSync, _pullFromSyncIfNewer, LOCAL_SYNC_HASH_KEY } from '../syncStorage';
-import { STORAGE_KEY_METADATA, STORAGE_KEY_CHUNK_PREFIX } from '../storage';
+import {
+	_joinSync,
+	_mergeConfigs,
+	_pushToSync,
+	_pullFromSyncIfNewer,
+	LOCAL_SYNC_FIRST_SEEN_KEY,
+	LOCAL_SYNC_HASH_KEY,
+	LOCAL_SYNC_JOINED_KEY,
+	SYNC_JOIN_WAIT_MS,
+} from '../syncStorage';
+import {
+	_getDefaultRule,
+	_loadFromStorage,
+	STORAGE_KEY_COMPRESSED,
+	STORAGE_KEY_METADATA,
+	STORAGE_KEY_CHUNK_PREFIX,
+} from '../storage';
+import { compressToUTF16 } from 'lz-string';
 import { TabModifierSettings } from '../types';
 
+// One group, so the config isn't blank: blank configs are never pushed (see the join tests).
 function makeConfig(overrides: Partial<TabModifierSettings['settings']> = {}): TabModifierSettings {
 	return {
 		rules: [],
-		groups: [],
+		groups: [{ id: 'g0', title: 'Base', color: 'grey', collapsed: false }],
 		settings: {
 			enable_new_version_notification: false,
 			theme: 'tabee',
@@ -55,7 +72,8 @@ let syncArea: ReturnType<typeof makeStorageArea> & { QUOTA_BYTES: number; MAX_IT
 
 describe('syncStorage', () => {
 	beforeEach(() => {
-		localStore = {};
+		// Most tests are about a device that already joined sync; the join tests clear this.
+		localStore = { [LOCAL_SYNC_JOINED_KEY]: true };
 		syncStore = {};
 		syncArea = Object.assign(makeStorageArea(syncStore), {
 			QUOTA_BYTES: 102400,
@@ -216,6 +234,121 @@ describe('syncStorage', () => {
 			// Pulling should also remember the hash, so a follow-up push of the
 			// same data doesn't ping-pong back to sync.
 			expect(localStore[LOCAL_SYNC_HASH_KEY]).toBe(syncStore[STORAGE_KEY_METADATA].hash);
+		});
+	});
+
+	describe('a new device joining sync', () => {
+		const ruleNamed = (name: string, fragment: string) => {
+			const rule = _getDefaultRule(name, '', fragment);
+			rule.id = `id-${name}`;
+			return rule;
+		};
+		const accountRules = () => {
+			const config = makeConfig();
+			config.rules = [ruleNamed('Mail', 'mail.example.com'), ruleNamed('Docs', 'docs.example.com')];
+			return config;
+		};
+		beforeEach(() => {
+			delete localStore[LOCAL_SYNC_JOINED_KEY];
+		});
+
+		it('never pushes a blank config, even after joining', async () => {
+			localStore[LOCAL_SYNC_JOINED_KEY] = true;
+			const blank = makeConfig();
+			blank.groups = [];
+
+			expect(await _pushToSync(blank)).toBe('empty');
+			expect(Object.keys(syncStore)).toHaveLength(0);
+		});
+
+		it('takes the rules already in the account instead of overwriting them', async () => {
+			// The account has two rules, written by another computer.
+			localStore[LOCAL_SYNC_JOINED_KEY] = true;
+			await _pushToSync(accountRules());
+			const accountHash = syncStore[STORAGE_KEY_METADATA].hash;
+			for (const key of Object.keys(localStore)) delete localStore[key];
+
+			// New computer: someone makes one rule before sync caught up.
+			const local = makeConfig();
+			local.rules = [ruleNamed('Mine', 'mine.example.com')];
+			localStore[STORAGE_KEY_COMPRESSED] = compressToUTF16(JSON.stringify(local));
+
+			const result = await _pushToSync(local);
+
+			expect(result).toBe('adopted');
+			const saved = await _loadFromStorage(chrome.storage.local, 'local');
+			expect(saved?.rules.map((r) => r.name)).toEqual(['Mail', 'Docs', 'Mine']);
+			// The account now has all three, not just the new computer's one.
+			const account = await _loadFromStorage(chrome.storage.sync, 'sync');
+			expect(account?.rules.map((r) => r.name)).toEqual(['Mail', 'Docs', 'Mine']);
+			expect(syncStore[STORAGE_KEY_METADATA].hash).not.toBe(accountHash);
+			expect(localStore[LOCAL_SYNC_JOINED_KEY]).toBe(true);
+		});
+
+		it('waits instead of pushing while the account may still be downloading', async () => {
+			const local = makeConfig();
+			local.rules = [ruleNamed('Mine', 'mine.example.com')];
+
+			expect(await _pushToSync(local)).toBe('waiting');
+			expect(Object.keys(syncStore)).toHaveLength(0);
+			expect(localStore[LOCAL_SYNC_FIRST_SEEN_KEY]).toBeTypeOf('number');
+		});
+
+		it('joins and pushes once the wait is over and the account is still empty', async () => {
+			const local = makeConfig();
+			local.rules = [ruleNamed('Mine', 'mine.example.com')];
+			localStore[STORAGE_KEY_COMPRESSED] = compressToUTF16(JSON.stringify(local));
+			localStore[LOCAL_SYNC_FIRST_SEEN_KEY] = Date.now() - SYNC_JOIN_WAIT_MS - 1;
+
+			expect(await _joinSync()).toBe('joined');
+			const account = await _loadFromStorage(chrome.storage.sync, 'sync');
+			expect(account?.rules.map((r) => r.name)).toEqual(['Mine']);
+		});
+
+		it('fills an empty new device from the account', async () => {
+			localStore[LOCAL_SYNC_JOINED_KEY] = true;
+			await _pushToSync(accountRules());
+			for (const key of Object.keys(localStore)) delete localStore[key];
+
+			expect(await _joinSync()).toBe('adopted');
+			const saved = await _loadFromStorage(chrome.storage.local, 'local');
+			expect(saved?.rules.map((r) => r.name)).toEqual(['Mail', 'Docs']);
+			expect(saved?.settings.sync_enabled).toBe(true);
+		});
+
+		it('leaves a device alone that has its own rules and turned sync off', async () => {
+			localStore[LOCAL_SYNC_JOINED_KEY] = true;
+			await _pushToSync(accountRules());
+			for (const key of Object.keys(localStore)) delete localStore[key];
+			const local = makeConfig({ sync_enabled: false });
+			local.rules = [ruleNamed('Mine', 'mine.example.com')];
+			localStore[STORAGE_KEY_COMPRESSED] = compressToUTF16(JSON.stringify(local));
+
+			expect(await _joinSync()).toBe('disabled');
+			const saved = await _loadFromStorage(chrome.storage.local, 'local');
+			expect(saved?.rules.map((r) => r.name)).toEqual(['Mine']);
+		});
+
+		it('never applies a blank config found in the account', async () => {
+			const blank = makeConfig();
+			blank.groups = [];
+			syncStore[STORAGE_KEY_COMPRESSED] = compressToUTF16(JSON.stringify(blank));
+
+			expect((await _pullFromSyncIfNewer()).status).toBe('no-data');
+		});
+
+		it('merges without duplicating rules both sides have', () => {
+			const remote = accountRules();
+			const local = makeConfig({ sync_enabled: false });
+			const copy = ruleNamed('Mail', 'mail.example.com');
+			copy.id = 'different-id';
+			local.rules = [copy, ruleNamed('Mine', 'mine.example.com')];
+			local.groups = [{ id: 'g-local', title: 'Local', color: 'red', collapsed: false }];
+
+			const merged = _mergeConfigs(remote, local);
+			expect(merged.rules.map((r) => r.name)).toEqual(['Mail', 'Docs', 'Mine']);
+			expect(merged.groups.map((g) => g.id)).toEqual(['g0', 'g-local']);
+			expect(merged.settings.sync_enabled).toBe(true);
 		});
 	});
 });

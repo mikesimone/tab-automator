@@ -3,6 +3,14 @@
 		<div class="hero-content text-center relative z-10">
 			<div class="max-w-lg">
 				<h1 class="text-5xl font-bold">Hello there</h1>
+				<div v-if="lookingForRules" class="alert alert-info text-sm text-left mt-6">
+					<span class="loading loading-spinner loading-sm"></span>
+					<span>
+						Looking for rules saved to your browser account. If you use Tab Automator on another
+						computer, your rules will show up here by themselves in a few minutes. Anything you make
+						here now is added to them, never the other way round.
+					</span>
+				</div>
 				<p class="py-6 text-lg">There is no rule yet!</p>
 				<p class="pb-6 text-base opacity-80">
 					Rules allow you to automatically customize tabs based on their URL. You can change titles,
@@ -22,7 +30,8 @@
 </template>
 
 <script lang="ts" setup>
-import { inject } from 'vue';
+import { inject, onMounted, onUnmounted, ref } from 'vue';
+import { _joinSync } from '../../../../../common/syncStorage.ts';
 import { GLOBAL_EVENTS, Rule } from '../../../../../common/types.ts';
 import Disclaimer from '../../../../global/Disclaimer.vue';
 import { useRulesStore } from '../../../../../stores/rules.store.ts';
@@ -30,6 +39,29 @@ import { _generateRandomId } from '../../../../../common/helpers.ts';
 
 const emitter: any = inject('emitter');
 const rulesStore = useRulesStore();
+
+// A new computer: keep checking the browser account for rules until it has joined sync.
+const lookingForRules = ref(false);
+let checkTimer: ReturnType<typeof setInterval> | undefined;
+
+const checkAccountForRules = async () => {
+	const result = await _joinSync();
+	lookingForRules.value = result === 'waiting';
+	if (result === 'adopted') await rulesStore.init();
+	if (result !== 'waiting' && checkTimer) {
+		clearInterval(checkTimer);
+		checkTimer = undefined;
+	}
+};
+
+onMounted(async () => {
+	await checkAccountForRules();
+	if (lookingForRules.value) checkTimer = setInterval(checkAccountForRules, 15000);
+});
+
+onUnmounted(() => {
+	if (checkTimer) clearInterval(checkTimer);
+});
 
 const onGetStartedClicked = () => {
 	emitter.emit(GLOBAL_EVENTS.OPEN_ADD_RULE_MODAL);

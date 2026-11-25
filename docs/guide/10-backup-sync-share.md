@@ -34,7 +34,11 @@ Files from older versions of Tab Automator still work.
 
 ![The Sync settings](images/settings-sync.png)
 
-If you sign in to Chrome with the same account on more than one computer, turn on **Sync via browser account** on each of them. Your rules, groups and settings will follow you. Click **Sync Now** if you don't want to wait.
+If you sign in to Chrome with the same account on more than one computer, your rules, groups and settings follow you. **Sync via browser account** is on from the start, so there's nothing to set up. Click **Sync Now** if you don't want to wait.
+
+**Installing on another computer?** Just install Tab Automator and open it. Chrome can take a few minutes to bring your synced data to a new computer, so the Rules page may say it's **looking for rules saved to your browser account**. Your rules then appear by themselves. You don't have to make a first rule, and you shouldn't need to import anything.
+
+A new computer never replaces your saved rules with an empty list. If you make a rule there before your synced rules arrive, it's added to them.
 
 Chrome only allows a small amount of synced data per extension. If you use lots of custom pictures as tab icons, your settings may be too big to sync. If that happens, Tab Automator tells you and keeps using the local copy and backups instead, so nothing breaks.
 

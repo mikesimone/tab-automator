@@ -8,7 +8,13 @@ import {
 	_setStorage,
 	STORAGE_KEY_METADATA,
 } from './common/storage';
-import { _pullFromSyncIfNewer } from './common/syncStorage';
+import {
+	_hasJoinedSync,
+	_joinSync,
+	_pullFromSyncIfNewer,
+	LOCAL_SYNC_FIRST_SEEN_KEY,
+	SYNC_JOIN_WAIT_MS,
+} from './common/syncStorage';
 import { _applyPausedBadge, _isPaused, _setPaused, PAUSE_STORAGE_KEY } from './common/pause';
 import { TabRulesService } from './background/TabRulesService';
 import { TabGroupsService } from './background/TabGroupsService';
@@ -433,6 +439,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 	// override a device that opted out.
 	if (areaName === 'sync' && changes[STORAGE_KEY_METADATA]) {
 		void (async () => {
+			// A device that hasn't joined yet takes the account's rules (Chrome often delivers them
+			// a little after install).
+			if (!(await _hasJoinedSync())) {
+				await _joinSyncAndTell();
+				return;
+			}
+
 			const local = await _getStorageAsync();
 
 			if (!local?.settings?.sync_enabled) {
@@ -530,6 +543,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 		await tabHiveService.checkAndCloseInactiveTabs();
 	} else if (autoRefreshService.isAutoRefreshAlarm(alarm)) {
 		await autoRefreshService.handleAlarm(alarm);
+	} else if (alarm.name === SYNC_JOIN_ALARM) {
+		await _joinSyncAndTell();
 	}
 });
 
@@ -559,5 +574,54 @@ void _isPaused().then(_applyPausedBadge);
 chrome.runtime.onInstalled.addListener((details) => {
 	if (details.reason === 'update') {
 		void _openWhatsNewAfterUpdate(details.previousVersion);
+		void _turnSyncOnOnce().then(_joinSyncAndTell);
+	} else if (details.reason === 'install') {
+		// New installs start with sync on, so there's nothing to turn on later.
+		void chrome.storage.local.set({ [SYNC_DEFAULT_ON_KEY]: true }).catch(() => {});
 	}
 });
+
+const SYNC_DEFAULT_ON_KEY = 'tab_modifier_sync_default_on';
+const SYNC_JOIN_ALARM = 'tab-automator-sync-join';
+
+/**
+ * Sync used to be off by default, so almost every existing install has it off without anyone
+ * choosing that. Turn it on once, on the first update to a version where it's the default.
+ */
+async function _turnSyncOnOnce(): Promise<void> {
+	try {
+		const flags = await chrome.storage.local.get(SYNC_DEFAULT_ON_KEY);
+		if (flags[SYNC_DEFAULT_ON_KEY]) return;
+		await chrome.storage.local.set({ [SYNC_DEFAULT_ON_KEY]: true });
+
+		// This device has been in use for a while, so whatever the account holds has long since
+		// arrived: no need to wait before joining.
+		const seen = await chrome.storage.local.get(LOCAL_SYNC_FIRST_SEEN_KEY);
+		if (typeof seen[LOCAL_SYNC_FIRST_SEEN_KEY] !== 'number') {
+			await chrome.storage.local.set({ [LOCAL_SYNC_FIRST_SEEN_KEY]: 0 });
+		}
+
+		const config = await _getStorageAsync();
+		if (config && config.settings && config.settings.sync_enabled !== true) {
+			config.settings.sync_enabled = true;
+			await _setStorage(config);
+			console.log('[Tab Automator] 🔄 Sync across devices is now on by default');
+		}
+	} catch (error) {
+		console.error('[Tab Automator] Failed to turn sync on:', error);
+	}
+}
+
+/** Join sync if this device hasn't yet, and refresh any open settings page if rules arrived. */
+async function _joinSyncAndTell(): Promise<void> {
+	const result = await _joinSync();
+	if (result === 'adopted') {
+		chrome.runtime.sendMessage({ action: 'syncConfigUpdated' }).catch(() => {});
+	} else if (result === 'waiting') {
+		// Look again once the wait is over, even if nothing else wakes the worker.
+		await chrome.alarms.create(SYNC_JOIN_ALARM, { delayInMinutes: SYNC_JOIN_WAIT_MS / 60000 + 1 });
+	}
+}
+
+// Every time the worker starts: a new device keeps checking the account until it has joined.
+void _joinSyncAndTell().catch(() => {});

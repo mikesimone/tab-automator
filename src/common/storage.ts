@@ -6,7 +6,7 @@ import { _isPaused } from './pause.ts';
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { debugLog } from './debugLog.ts';
 import { _autoBackupConfig } from './autoBackup.ts';
-import { _pushToSync } from './syncStorage.ts';
+import { _joinSync, _pushToSync } from './syncStorage.ts';
 
 export const STORAGE_KEY = 'tab_modifier';
 export const STORAGE_KEY_COMPRESSED = 'tab_modifier_compressed';
@@ -32,7 +32,8 @@ export function _getDefaultTabModifierSettings(): TabModifierSettings {
 			tab_hive_reject_list: [],
 			debug_mode: false,
 			auto_backup_enabled: false,
-			sync_enabled: false,
+			// On by default: a new device picks up the rules saved in the browser account.
+			sync_enabled: true,
 		},
 	};
 }
@@ -105,21 +106,6 @@ function _reassembleChunks(chunks: string[]): string {
 function _getAllLocalStorageKeys(): Promise<Record<string, any>> {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(null, (items) => {
-			if (chrome.runtime.lastError) {
-				reject(new Error(chrome.runtime.lastError.message));
-			} else {
-				resolve(items || {});
-			}
-		});
-	});
-}
-
-/**
- * Helper to get all storage keys from sync storage (for migration)
- */
-function _getAllSyncStorageKeys(): Promise<Record<string, any>> {
-	return new Promise((resolve, reject) => {
-		chrome.storage.sync.get(null, (items) => {
 			if (chrome.runtime.lastError) {
 				reject(new Error(chrome.runtime.lastError.message));
 			} else {
@@ -225,20 +211,13 @@ export async function _getStorageAsync(): Promise<TabModifierSettings | undefine
 			return data;
 		}
 
-		// If not found in local, try sync storage (migration path)
-		debugLog('[Tab Automator] No data in local storage, checking sync storage for migration...');
-		data = await _loadFromStorage(chrome.storage.sync, 'sync');
-
-		if (data) {
-			// Migrate data from sync to local
-			debugLog('[Tab Automator] Migrating data from sync storage to local storage...');
-			await _setStorage(data);
-			debugLog('[Tab Automator] Migration complete!');
-
-			// Clean up sync storage
-			await _clearSyncStorage();
-
-			return data;
+		// Nothing here yet: a new device. Take the rules saved in the browser account, if any.
+		// The account's copy is never deleted: other devices sync from it.
+		if ((await _joinSync()) === 'adopted') {
+			data = await _loadFromStorage(chrome.storage.local, 'local');
+			if (data) {
+				return data;
+			}
 		}
 
 		// No data found anywhere
@@ -246,25 +225,6 @@ export async function _getStorageAsync(): Promise<TabModifierSettings | undefine
 	} catch (error) {
 		console.error('[Tab Automator] Error loading storage:', error);
 		throw error;
-	}
-}
-
-/**
- * Clear sync storage (for migration cleanup)
- */
-async function _clearSyncStorage(): Promise<void> {
-	const allSyncItems = await _getAllSyncStorageKeys();
-	const keysToRemove = Object.keys(allSyncItems).filter(
-		(key) =>
-			key === STORAGE_KEY ||
-			key === STORAGE_KEY_COMPRESSED ||
-			key === STORAGE_KEY_METADATA ||
-			key.startsWith(STORAGE_KEY_CHUNK_PREFIX)
-	);
-
-	if (keysToRemove.length > 0) {
-		await chrome.storage.sync.remove(keysToRemove);
-		debugLog(`[Tab Automator] Cleared ${keysToRemove.length} keys from sync storage`);
 	}
 }
 
@@ -284,8 +244,8 @@ export async function _clearStorage(): Promise<void> {
 		debugLog(`[Tab Automator] Cleared ${keysToRemove.length} keys from local storage`);
 	}
 
-	// Also clear sync storage (for migration cleanup)
-	await _clearSyncStorage();
+	// The browser account's copy is deliberately left alone: clearing this device must never
+	// wipe the rules other devices sync from.
 }
 
 export async function _setStorage(tabModifier: TabModifierSettings): Promise<void> {

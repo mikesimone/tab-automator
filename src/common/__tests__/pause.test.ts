@@ -18,8 +18,9 @@ const mockChrome = {
 				}
 				return Promise.resolve(items);
 			}),
-			set: vi.fn(async (items: Record<string, unknown>) => {
+			set: vi.fn(async (items: Record<string, unknown>, callback?: () => void) => {
 				Object.assign(store, items);
+				callback?.();
 			}),
 		},
 		sync: {
